@@ -3,13 +3,35 @@ import 'package:http/http.dart' as http;
 import '../models/pet.dart';
 import '../models/treatment.dart';
 import '../models/chat_message.dart';
+import 'api_client.dart';
 
 class AIService {
-  // Note: In production, store API key securely (environment variables, backend proxy, etc.)
-  // For development, you can set it here or pass it from a config
-  static const String _apiKey = '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'; // Replace with your actual API key
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions';
-  static const String _model = 'gpt-4o-mini'; // Using GPT-4o-mini as specified
+  static const String _model = 'gpt-4o-mini';
+  
+  final _apiClient = ApiClient();
+  String? _cachedApiKey;
+
+  /// Fetch OpenAI API key from backend server (secure approach)
+  Future<String> _getApiKey() async {
+    // Return cached key if available
+    if (_cachedApiKey != null && _cachedApiKey!.isNotEmpty) {
+      return _cachedApiKey!;
+    }
+
+    try {
+      final response = await _apiClient.get('/openai-key');
+      if (response.statusCode == 200) {
+        final data = (response.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+        _cachedApiKey = data['api_key'] as String;
+        return _cachedApiKey!;
+      } else {
+        throw Exception('Failed to fetch API key from server');
+      }
+    } catch (e) {
+      throw Exception('Could not retrieve OpenAI API key: $e');
+    }
+  }
 
   /// Generate a medical history summary for the AI context
   String _buildMedicalHistoryContext(Pet pet, List<Treatment> treatments) {
@@ -65,6 +87,9 @@ class AIService {
     required String userMessage,
   }) async {
     try {
+      // Fetch API key from server
+      final apiKey = await _getApiKey();
+      
       // Build the medical history context
       final medicalContext = _buildMedicalHistoryContext(pet, treatments);
       
@@ -111,7 +136,7 @@ Please help the owner understand their pet's health and answer their questions b
         Uri.parse(_apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
+          'Authorization': 'Bearer $apiKey',
         },
         body: jsonEncode({
           'model': _model,
@@ -134,8 +159,13 @@ Please help the owner understand their pet's health and answer their questions b
     }
   }
 
-  /// Validate API key (optional utility method)
-  static bool isApiKeySet() {
-    return _apiKey.isNotEmpty && _apiKey != 'YOUR_OPENAI_API_KEY_HERE';
+  /// Validate API key is available
+  Future<bool> isApiKeySet() async {
+    try {
+      final key = await _getApiKey();
+      return key.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
   }
 }

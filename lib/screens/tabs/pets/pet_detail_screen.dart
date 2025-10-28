@@ -621,226 +621,238 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     final weightController = TextEditingController(text: pet.weight?.toString() ?? '');
     final formKey = GlobalKey<FormState>();
 
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFC1E8F7),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.edit,
-                      color: Color(0xFF1E3A8A),
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Edit Pet Information',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E3A8A),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      icon: const Icon(Icons.close),
-                      color: const Color(0xFF1E3A8A),
-                    ),
-                  ],
-                ),
-              ),
-              // Form
-              Expanded(
-                child: SingleChildScrollView(
+    try {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
                   padding: const EdgeInsets.all(20),
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Name *',
-                            prefixIcon: const Icon(Icons.pets),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: speciesController,
-                          decoration: InputDecoration(
-                            labelText: 'Species *',
-                            prefixIcon: const Icon(Icons.category),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: breedController,
-                          decoration: InputDecoration(
-                            labelText: 'Breed',
-                            prefixIcon: const Icon(Icons.info_outline),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFC1E8F7),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.edit,
+                        color: Color(0xFF1E3A8A),
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Edit Pet Information',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E3A8A),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: ageController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: 'Age (years)',
-                            prefixIcon: const Icon(Icons.cake),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        icon: const Icon(Icons.close),
+                        color: const Color(0xFF1E3A8A),
+                      ),
+                    ],
+                  ),
+                ),
+                // Form
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              labelText: 'Name *',
+                              prefixIcon: const Icon(Icons.pets),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: speciesController,
+                            decoration: InputDecoration(
+                              labelText: 'Species *',
+                              prefixIcon: const Icon(Icons.category),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: breedController,
+                            decoration: InputDecoration(
+                              labelText: 'Breed',
+                              prefixIcon: const Icon(Icons.info_outline),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: genderController,
-                          decoration: InputDecoration(
-                            labelText: 'Gender',
-                            prefixIcon: const Icon(Icons.wc),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: ageController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Age (years)',
+                              prefixIcon: const Icon(Icons.cake),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: colorController,
-                          decoration: InputDecoration(
-                            labelText: 'Color',
-                            prefixIcon: const Icon(Icons.palette),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: genderController,
+                            decoration: InputDecoration(
+                              labelText: 'Gender',
+                              prefixIcon: const Icon(Icons.wc),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: weightController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          decoration: InputDecoration(
-                            labelText: 'Weight (kg)',
-                            prefixIcon: const Icon(Icons.monitor_weight),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: colorController,
+                            decoration: InputDecoration(
+                              labelText: 'Color',
+                              prefixIcon: const Icon(Icons.palette),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: weightController,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            decoration: InputDecoration(
+                              labelText: 'Weight (kg)',
+                              prefixIcon: const Icon(Icons.monitor_weight),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Actions
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                // Actions
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            Navigator.pop(context, true);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E3A8A),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              Navigator.pop(context, true);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E3A8A),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Save',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-
-    if (result == true && mounted) {
-      await _updatePet(
-        pet.id,
-        nameController.text,
-        speciesController.text,
-        breedController.text,
-        ageController.text,
-        genderController.text,
-        colorController.text,
-        weightController.text,
       );
-    }
 
-    nameController.dispose();
-    speciesController.dispose();
-    breedController.dispose();
-    ageController.dispose();
-    genderController.dispose();
-    colorController.dispose();
-    weightController.dispose();
+      // Extract values before disposing controllers
+      if (result == true && mounted) {
+        final name = nameController.text;
+        final species = speciesController.text;
+        final breed = breedController.text;
+        final age = ageController.text;
+        final gender = genderController.text;
+        final color = colorController.text;
+        final weight = weightController.text;
+
+        await _updatePet(
+          pet.id,
+          name,
+          species,
+          breed,
+          age,
+          gender,
+          color,
+          weight,
+        );
+      }
+    } finally {
+      // Always dispose controllers to prevent memory leaks
+      nameController.dispose();
+      speciesController.dispose();
+      breedController.dispose();
+      ageController.dispose();
+      genderController.dispose();
+      colorController.dispose();
+      weightController.dispose();
+    }
   }
 
   Future<void> _updatePet(

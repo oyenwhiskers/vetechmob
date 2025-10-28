@@ -185,20 +185,35 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
           ),
         ],
       ),
-      body: Consumer2<AIDiagnoseProvider, PetProvider>(
-        builder: (context, aiProvider, petProvider, _) {
+      body: FutureBuilder<bool>(
+        future: AIService().isApiKeySet(),
+        builder: (context, snapshot) {
+          // Show loading while checking API key
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
           // Check if API key is set
-          if (!AIService.isApiKeySet()) {
+          if (snapshot.hasData && !snapshot.data!) {
             return _buildApiKeyWarning();
           }
 
-          // Show pet selection if no pet selected
-          if (!aiProvider.hasPetSelected) {
-            return _buildPetSelection(petProvider, aiProvider);
+          // API key error
+          if (snapshot.hasError) {
+            return _buildApiKeyWarning();
           }
 
-          // Show chat interface
-          return _buildChatInterface(aiProvider);
+          return Consumer2<AIDiagnoseProvider, PetProvider>(
+            builder: (context, aiProvider, petProvider, _) {
+              // Show pet selection if no pet selected
+              if (!aiProvider.hasPetSelected) {
+                return _buildPetSelection(petProvider, aiProvider);
+              }
+
+              // Show chat interface
+              return _buildChatInterface(aiProvider);
+            },
+          );
         },
       ),
     );
@@ -235,7 +250,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Please configure your OpenAI API key in the AIService class (lib/services/ai_service.dart) to use AI Diagnose.',
+              'Unable to fetch OpenAI API key from server. Please ensure the server is configured correctly with OPENAI_API_KEY in the environment.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,

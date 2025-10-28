@@ -34,6 +34,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [MobileAuthController::class, 'logout']);
     Route::get('/user', [MobileAuthController::class, 'user']);
     
+    // Config - Get OpenAI API Key
+    Route::get('/openai-key', [MobileAuthController::class, 'getOpenAIKey']);
+    
     // Dashboard
     Route::get('/dashboard', [MobileDashboardController::class, 'index']);
     
