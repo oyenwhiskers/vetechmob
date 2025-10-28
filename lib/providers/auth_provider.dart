@@ -85,10 +85,34 @@ class AuthProvider extends ChangeNotifier {
 
   String _extractError(Object e) {
     try {
-      final msg = e.toString();
-      return msg;
+      // Handle DioException specifically
+      if (e.toString().contains('DioException')) {
+        final dioError = e as dynamic;
+        if (dioError.response != null) {
+          final statusCode = dioError.response.statusCode;
+          final data = dioError.response.data;
+          
+          // Try to extract error message from response
+          if (data is Map<String, dynamic>) {
+            if (data['message'] != null) {
+              return '[$statusCode] ${data['message']}';
+            }
+            if (data['errors'] != null) {
+              final errors = data['errors'] as Map<String, dynamic>;
+              final firstError = errors.values.first;
+              if (firstError is List && firstError.isNotEmpty) {
+                return '[$statusCode] ${firstError.first}';
+              }
+            }
+          }
+          
+          return 'Server error [$statusCode]: ${data.toString()}';
+        }
+        return 'Network error: ${dioError.message}';
+      }
+      return e.toString();
     } catch (_) {
-      return 'Something went wrong';
+      return 'Something went wrong: ${e.toString()}';
     }
   }
 }

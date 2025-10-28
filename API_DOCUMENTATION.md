@@ -3,7 +3,7 @@
 ## Overview
 This is the complete API documentation for the VETech mobile application. The API enables customer users to register, manage their profile, book veterinary services, manage their pets, scan QR tags, and view medical treatment records.
 
-**Base URL:** `http://127.0.0.1:8000/api/v1`  
+**Base URL:** `http://inovetsmart.com/api/v1`  
 **Authentication:** Bearer Token (Laravel Sanctum)  
 **Response Format:** JSON
 

@@ -12,6 +12,8 @@ class ApiClient {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
+      // Allow all status codes so we can handle errors gracefully
+      validateStatus: (status) => true,
     ));
 
     _dio.interceptors.add(InterceptorsWrapper(
@@ -20,10 +22,30 @@ class ApiClient {
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
         }
+        // Debug logging
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        print('🔵 REQUEST: ${options.method} ${options.uri}');
+        print('📤 Headers: ${options.headers}');
+        print('📦 Data: ${options.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         handler.next(options);
       },
+      onResponse: (response, handler) {
+        // Debug logging
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        print('🟢 RESPONSE: ${response.statusCode} ${response.requestOptions.uri}');
+        print('📥 Data: ${response.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        handler.next(response);
+      },
       onError: (e, handler) {
-        // Normalize common error messages
+        // Debug logging with detailed error info
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        print('🔴 ERROR: ${e.requestOptions.method} ${e.requestOptions.uri}');
+        print('❌ Status: ${e.response?.statusCode}');
+        print('📥 Response data: ${e.response?.data}');
+        print('📄 Error message: ${e.message}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         handler.next(e);
       },
     ));

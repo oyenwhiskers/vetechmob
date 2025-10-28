@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../providers/pet_provider.dart';
 import '../../../models/pet.dart';
 import 'pet_form_screen.dart';
@@ -23,59 +24,217 @@ class _PetsScreenState extends State<PetsScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PetProvider>();
+    final cs = Theme.of(context).colorScheme;
+
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline, size: 48, color: cs.error),
+              const SizedBox(height: 12),
+              Text('Something went wrong', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 6),
+              Text(provider.error!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: provider.fetch,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (provider.pets.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.pets, size: 60, color: cs.primary),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'No pets yet',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Add your first pet to start managing their health records and appointments',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () async {
+                  final created = await Navigator.of(context).push<Pet>(
+                    MaterialPageRoute(builder: (_) => const PetFormScreen()),
+                  );
+                  if (created != null && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet added successfully')));
+                  }
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Add Your First Pet'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: provider.fetch,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: provider.pets.length,
-                itemBuilder: (ctx, i) {
-                  final p = provider.pets[i];
-                  return Card(
-                    child: ListTile(
-                      title: Text(p.name),
-                      subtitle: Text('${p.species}${p.breed != null ? ' • ${p.breed}' : ''}'),
-                      leading: const Icon(Icons.pets),
-                      trailing: Row(
+      body: RefreshIndicator(
+        onRefresh: provider.fetch,
+        child: ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: provider.pets.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (ctx, i) {
+            final p = provider.pets[i];
+            final speciesLower = p.species.toLowerCase();
+            final isDogOrCat = speciesLower == 'dog' || speciesLower == 'cat';
+            final speciesIcon = speciesLower == 'dog'
+                ? FontAwesomeIcons.dog
+                : speciesLower == 'cat'
+                    ? FontAwesomeIcons.cat
+                    : Icons.cruelty_free;
+            final speciesDisplay = p.species.substring(0, 1).toUpperCase() + p.species.substring(1).toLowerCase();
+
+            return Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.1), width: 1),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => PetDetailScreen(petId: p.id)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: Row(
+                    children: [
+                      // Pet icon
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        alignment: Alignment.center,
+                        child: isDogOrCat
+                            ? FaIcon(speciesIcon, color: cs.primary, size: 28)
+                            : Icon(speciesIcon, color: cs.primary, size: 28),
+                      ),
+                      const SizedBox(width: 14),
+                      // Pet info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              p.name,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  speciesDisplay,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                                ),
+                                if (p.breed != null && p.breed!.isNotEmpty) ...[
+                                  Text(' • ', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor)),
+                                  Expanded(
+                                    child: Text(
+                                      p.breed!,
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            if (p.age != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                '${p.age} ${p.age == 1 ? 'year' : 'years'} old',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor.withOpacity(0.8)),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      // Tag indicator & actions
+                      Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (p.tag != null) const Icon(Icons.qr_code_2),
-                          IconButton(
-                            icon: const Icon(Icons.qr_code_scanner),
-                            tooltip: 'Assign tag',
-                            onPressed: () async {
-                              final tag = await Navigator.of(context).push<String>(
-                                MaterialPageRoute(builder: (_) => ScanTagScreen()),
-                              );
-                              if (tag != null && mounted) {
-                                final err = await context.read<PetProvider>().assignTag(p.id, tag);
-                                if (err != null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+                          if (p.tag != null)
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.qr_code_2, color: Colors.green, size: 20),
+                            )
+                          else
+                            IconButton(
+                              icon: const Icon(Icons.qr_code_scanner),
+                              tooltip: 'Assign QR tag',
+                              onPressed: () async {
+                                final tag = await Navigator.of(context).push<String>(
+                                  MaterialPageRoute(builder: (_) => ScanTagScreen()),
+                                );
+                                if (tag != null && mounted) {
+                                  final err = await context.read<PetProvider>().assignTag(p.id, tag);
+                                  if (err != null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tag assigned successfully')));
+                                  }
                                 }
-                              }
-                            },
-                          ),
+                              },
+                            ),
                         ],
                       ),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => PetDetailScreen(petId: p.id)),
-                      ),
-                    ),
-                  );
-                },
+                      const SizedBox(width: 4),
+                      Icon(Icons.chevron_right_rounded, color: Theme.of(context).hintColor),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            );
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final created = await Navigator.of(context).push<Pet>(
             MaterialPageRoute(builder: (_) => const PetFormScreen()),
           );
           if (created != null && mounted) {
-            // Provider already updated list in addPet; just feedback
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet added')));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet added successfully')));
           }
         },
         label: const Text('Add Pet'),

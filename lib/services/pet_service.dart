@@ -7,6 +7,15 @@ class PetService {
 
   Future<List<Pet>> getPets() async {
     final res = await _api.get('/pets');
+    
+    // Check for error status codes
+    if (res.statusCode != 200) {
+      final errorMessage = res.data is Map 
+          ? (res.data['message'] ?? 'Server error') 
+          : 'Server error';
+      throw Exception('Failed to fetch pets (${res.statusCode}): $errorMessage');
+    }
+    
     final list = (res.data as Map<String, dynamic>)['data'] as List<dynamic>;
     return list.map((e) => Pet.fromJson(e as Map<String, dynamic>)).toList();
   }
@@ -34,6 +43,15 @@ class PetService {
       if (medicalNotes != null) 'medical_notes': medicalNotes,
     };
     final res = await _api.post('/pets', data: payload);
+    
+    // Check for error status codes
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      final errorMessage = res.data is Map 
+          ? (res.data['message'] ?? 'Server error') 
+          : 'Server error';
+      throw Exception('Failed to create pet (${res.statusCode}): $errorMessage');
+    }
+    
     final data = (res.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
     return Pet.fromJson(data);
   }

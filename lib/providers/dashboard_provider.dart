@@ -19,10 +19,32 @@ class DashboardProvider extends ChangeNotifier {
     try {
       _data = await _service.getDashboard();
     } catch (e) {
-      _error = e.toString();
+      _error = _extractErrorMessage(e);
+      print('❌ DashboardProvider fetch error: $_error');
     } finally {
       _loading = false;
       notifyListeners();
+    }
+  }
+
+  String _extractErrorMessage(Object e) {
+    try {
+      final errorStr = e.toString();
+      if (errorStr.contains('500')) {
+        return 'Server error (500). Backend needs fixing.';
+      }
+      if (errorStr.contains('timeout')) {
+        return 'Connection timeout (20s). Server is slow or down.';
+      }
+      if (errorStr.contains('401')) {
+        return 'Authentication failed. Please login again.';
+      }
+      if (errorStr.contains('404')) {
+        return 'Dashboard endpoint not found (404).';
+      }
+      return errorStr;
+    } catch (_) {
+      return 'Unknown error occurred';
     }
   }
 }

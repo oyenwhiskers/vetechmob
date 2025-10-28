@@ -20,10 +20,32 @@ class PetProvider extends ChangeNotifier {
     try {
       _pets = await _service.getPets();
     } catch (e) {
-      _error = e.toString();
+      _error = _extractErrorMessage(e);
+      print('❌ PetProvider fetch error: $_error');
     } finally {
       _loading = false;
       notifyListeners();
+    }
+  }
+
+  String _extractErrorMessage(Object e) {
+    try {
+      final errorStr = e.toString();
+      if (errorStr.contains('500')) {
+        return 'Server error (500). Please check server logs.\nThe backend needs to be fixed.';
+      }
+      if (errorStr.contains('timeout')) {
+        return 'Connection timeout. Server is not responding.';
+      }
+      if (errorStr.contains('401')) {
+        return 'Authentication failed. Please login again.';
+      }
+      if (errorStr.contains('404')) {
+        return 'Pets endpoint not found (404).';
+      }
+      return errorStr;
+    } catch (_) {
+      return 'Unknown error occurred';
     }
   }
 
