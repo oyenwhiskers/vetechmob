@@ -4,8 +4,12 @@ import 'api_client.dart';
 class BookingService {
   final _api = ApiClient();
 
-  Future<List<Booking>> getBookings({String? status}) async {
-    final res = await _api.get('/bookings', query: status != null ? {'status': status} : null);
+  Future<List<Booking>> getBookings({String? status, int? petId, String? date}) async {
+    final query = <String, dynamic>{};
+    if (status != null) query['status'] = status;
+    if (petId != null) query['pet_id'] = petId;
+    if (date != null) query['date'] = date;
+    final res = await _api.get('/bookings', query: query.isEmpty ? null : query);
     final list = (res.data as Map<String, dynamic>)['data'] as List<dynamic>;
     return list.map((e) => Booking.fromJson(e as Map<String, dynamic>)).toList();
   }

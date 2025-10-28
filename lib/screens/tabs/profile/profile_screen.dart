@@ -40,30 +40,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Profile Header Card
           Card(
-            child: ListTile(
-              leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text(user.name),
-              subtitle: Text(user.email),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.grey.shade200),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Color(0xFF1E3A8A),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    user.name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E3A8A),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    user.email,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          
+          // Contact Information Card
           Card(
-            child: ListTile(
-              title: const Text('Contact'),
-              subtitle: Text('Phone: ${customer.phone ?? '-'}\nAddress: ${customer.address ?? '-'}'),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.grey.shade200),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Contact',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _InfoRow(
+                    icon: Icons.phone_outlined,
+                    label: 'Phone',
+                    value: customer.phone ?? '-',
+                  ),
+                  const SizedBox(height: 12),
+                  _InfoRow(
+                    icon: Icons.location_on_outlined,
+                    label: 'Address',
+                    value: customer.address ?? '-',
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
+          
+          // Action Buttons
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit profile'),
+                child: _ActionButton(
+                  icon: Icons.edit_outlined,
+                  label: 'Edit profile',
+                  color: const Color(0xFF1E3A8A),
                   onPressed: () async {
                     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _EditProfileScreen()));
                     if (!mounted) return;
@@ -71,51 +145,249 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.lock),
-                  label: const Text('Change password'),
+                child: _ActionButton(
+                  icon: Icons.lock_outline,
+                  label: 'Change password',
+                  color: const Color(0xFF047857),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _ChangePasswordScreen())),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          TextButton.icon(
-            icon: const Icon(Icons.delete_forever, color: Colors.red),
-            label: const Text('Delete account', style: TextStyle(color: Colors.red)),
-            onPressed: () async {
-              final controller = TextEditingController();
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Confirm account deletion'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Enter your password to confirm.'),
-                      const SizedBox(height: 8),
-                      TextField(controller: controller, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
-                    ],
+          const SizedBox(height: 16),
+          
+          // Logout Button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.logout,
+                              color: Colors.orange,
+                              size: 30,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Logout',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E3A8A),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Are you sure you want to logout?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey.shade600,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Logout',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                    FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-                  ],
-                ),
-              );
-              if (confirmed == true) {
-                final err = await context.read<ProfileProvider>().deleteAccount(controller.text);
-                if (err == null) {
+                );
+
+                if (confirmed == true && mounted) {
+                  await context.read<AuthProvider>().logout();
                   if (!mounted) return;
                   Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                } else {
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
                 }
-              }
-            },
+              },
+              icon: const Icon(Icons.logout, size: 18),
+              label: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: BorderSide(color: Colors.red.withOpacity(0.3), width: 1.5),
+                foregroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Helper Widgets
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E3A8A).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: const Color(0xFF1E3A8A),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        side: BorderSide(color: color.withOpacity(0.3), width: 1.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -177,25 +449,147 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      backgroundColor: Colors.grey.shade50,
+      appBar: AppBar(
+        title: const Text('Edit Profile'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFC1E8F7),
+        foregroundColor: const Color(0xFF1E3A8A),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(controller: _name, decoration: const InputDecoration(labelText: 'Full name'), validator: (v) => v == null || v.isEmpty ? 'Required' : null),
-              const SizedBox(height: 12),
-              TextFormField(controller: _email, decoration: const InputDecoration(labelText: 'Email'), validator: (v) => v == null || v.isEmpty ? 'Required' : null),
-              const SizedBox(height: 12),
-              TextFormField(controller: _phone, decoration: const InputDecoration(labelText: 'Phone')),
-              const SizedBox(height: 12),
-              TextFormField(controller: _address, decoration: const InputDecoration(labelText: 'Address')),
-              const SizedBox(height: 20),
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Personal Information',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _name,
+                        decoration: InputDecoration(
+                          labelText: 'Full name',
+                          prefixIcon: const Icon(Icons.person_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _email,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: const Icon(Icons.email_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Contact Information',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _phone,
+                        decoration: InputDecoration(
+                          labelText: 'Phone',
+                          prefixIcon: const Icon(Icons.phone_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _address,
+                        decoration: InputDecoration(
+                          labelText: 'Address',
+                          prefixIcon: const Icon(Icons.location_on_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(onPressed: _saving ? null : _save, child: _saving ? const CircularProgressIndicator() : const Text('Save')),
-              )
+                child: ElevatedButton(
+                  onPressed: _saving ? null : _save,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E3A8A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
             ],
           ),
         ),
@@ -240,18 +634,102 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Change Password')),
-      body: Padding(
+      backgroundColor: Colors.grey.shade50,
+      appBar: AppBar(
+        title: const Text('Change Password'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFC1E8F7),
+        foregroundColor: const Color(0xFF1E3A8A),
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(controller: _current, decoration: const InputDecoration(labelText: 'Current password'), obscureText: true, validator: (v) => v == null || v.isEmpty ? 'Required' : null),
-              const SizedBox(height: 12),
-              TextFormField(controller: _next, decoration: const InputDecoration(labelText: 'New password'), obscureText: true, validator: (v) => v == null || v.length < 8 ? 'Min 8 chars' : null),
-              const SizedBox(height: 20),
-              SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _saving ? null : _save, child: _saving ? const CircularProgressIndicator() : const Text('Update'))),
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Security',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _current,
+                        decoration: InputDecoration(
+                          labelText: 'Current password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        obscureText: true,
+                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _next,
+                        decoration: InputDecoration(
+                          labelText: 'New password',
+                          prefixIcon: const Icon(Icons.lock_open_outlined),
+                          helperText: 'Minimum 8 characters',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        obscureText: true,
+                        validator: (v) => v == null || v.length < 8 ? 'Min 8 chars' : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saving ? null : _save,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF047857),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Update Password',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
             ],
           ),
         ),

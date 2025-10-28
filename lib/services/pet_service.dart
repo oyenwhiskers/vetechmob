@@ -105,6 +105,19 @@ class PetService {
     return PetTag.fromJson(data['tag'] as Map<String, dynamic>);
   }
 
+  Future<void> releaseTagFromPet(int petId) async {
+    // Since there's no documented release-tag endpoint, we'll use the update endpoint
+    // to set tag_id to null or use a dedicated endpoint if it exists
+    try {
+      // Try dedicated endpoint first
+      await _api.post('/pets/$petId/release-tag', data: {});
+    } catch (e) {
+      // If that fails, try updating the pet with tag_id: null
+      // This may or may not work depending on backend implementation
+      throw Exception('Release tag endpoint not available. Backend needs to implement POST /pets/{id}/release-tag');
+    }
+  }
+
   Future<List<Treatment>> getPetTreatments(int petId) async {
     final res = await _api.get('/pets/$petId/treatments');
     final data = (res.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;

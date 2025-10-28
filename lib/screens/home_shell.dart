@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 import 'tabs/dashboard_screen.dart';
 import 'tabs/pets/pets_screen.dart';
 import 'tabs/bookings/bookings_screen.dart';
@@ -17,31 +15,25 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  final _pages = const [
-    DashboardScreen(),
-    PetsScreen(),
-    BookingsScreen(),
-    ProfileScreen(),
+  void _switchTab(int index) {
+    setState(() => _index = index);
+  }
+
+  List<Widget> get _pages => [
+    DashboardScreen(onSwitchTab: _switchTab),
+    const PetsScreen(),
+    const BookingsScreen(),
+    const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     final titles = ['Dashboard', 'Pets', 'Bookings', 'Profile'];
     return Scaffold(
-      appBar: AppBar(
+      appBar: _index == 0 ? null : AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
         title: Text(titles[_index]),
-        actions: [
-          if (_index == 3)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                await context.read<AuthProvider>().logout();
-                if (!mounted) return;
-                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-              },
-              tooltip: 'Logout',
-            ),
-        ],
       ),
       body: _pages[_index],
       bottomNavigationBar: NavigationBar(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -8,16 +9,49 @@ import 'bookings/bookings_screen.dart';
 import 'bookings/create_booking_screen.dart';
 import 'pets/pet_form_screen.dart';
 import 'pets/pet_detail_screen.dart';
+import 'ai_diagnose_screen.dart';
 import '../../models/dashboard.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final void Function(int)? onSwitchTab;
+  
+  const DashboardScreen({super.key, this.onSwitchTab});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String _fmtDate(String raw) {
+    try {
+      final d = DateTime.parse(raw);
+      return DateFormat('EEE, MMM d').format(d);
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  String _fmtTime(String raw) {
+    try {
+      // If ISO-like, avoid timezone shifts; format by hour/min only
+      if (raw.contains('T')) {
+        final dt = DateTime.parse(raw);
+        final wall = DateTime(2000, 1, 1, dt.hour, dt.minute);
+        return DateFormat('h:mm a').format(wall);
+      }
+      // Expect HH:mm or HH:mm:ss
+      final parts = raw.split(':');
+      if (parts.length >= 2) {
+        final h = int.parse(parts[0]);
+        final m = int.parse(parts[1]);
+        final wall = DateTime(2000, 1, 1, h, m);
+        return DateFormat('h:mm a').format(wall);
+      }
+      return raw;
+    } catch (_) {
+      return raw;
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -68,12 +102,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // Header
           _HeaderSection(userName: userName),
 
-          // Quick actions
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: _QuickActionsRow(),
-          ),
-
           // Stats grid
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -105,9 +133,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: _NextBookingCard(
                 title: data.nextBooking!.serviceType,
-                subtitle: '${data.nextBooking!.bookingDate} ${data.nextBooking!.bookingTime} • ${data.nextBooking!.pet.name}',
+                subtitle: '${_fmtDate(data.nextBooking!.bookingDate)} • ${_fmtTime(data.nextBooking!.bookingTime)} • ${data.nextBooking!.pet.name}',
               ),
             ),
+
+          // Quick actions
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: _QuickActionsRow(),
+          ),
 
           // Recent bookings - vertical list
           Padding(
@@ -118,7 +152,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ? IconButton(
                       icon: const Icon(Icons.arrow_forward_rounded),
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BookingsScreen()));
+                        // Switch to Bookings tab (index 2)
+                        widget.onSwitchTab?.call(2);
                       },
                       tooltip: 'View all',
                     )
@@ -135,6 +170,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateBookingScreen()));
                   },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E3A8A),
+                    foregroundColor: Colors.white,
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Create booking'),
                 ),
@@ -145,7 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
                   child: _BookingCard(
                     title: b.serviceType,
-                    subtitle: '${b.bookingDate} • ${b.bookingTime}',
+                    subtitle: '${_fmtDate(b.bookingDate)} • ${_fmtTime(b.bookingTime)}',
                     petName: b.pet.name,
                     status: b.status,
                     onTap: () {},
@@ -161,7 +200,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ? IconButton(
                       icon: const Icon(Icons.arrow_forward_rounded),
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PetsScreen()));
+                        // Switch to Pets tab (index 1)
+                        widget.onSwitchTab?.call(1);
                       },
                       tooltip: 'Manage',
                     )
@@ -178,6 +218,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PetFormScreen()));
                   },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E3A8A),
+                    foregroundColor: Colors.white,
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Add pet'),
                 ),
@@ -264,6 +308,8 @@ class _HeaderSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    const textColor = Color(0xFF1E3A8A); // Dark navy for better contrast
+    
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -296,32 +342,32 @@ class _HeaderSection extends StatelessWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: cs.onPrimary.withOpacity(.18),
+                color: textColor.withOpacity(.08),
                 shape: BoxShape.circle,
-                border: Border.all(color: cs.onPrimary.withOpacity(.2), width: 1.5),
+                border: Border.all(color: textColor.withOpacity(.15), width: 1.5),
               ),
-              child: Icon(Icons.dashboard_rounded, color: cs.onPrimary, size: 24),
+              child: Icon(Icons.dashboard_rounded, color: textColor, size: 24),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Dashboard', style: theme.textTheme.titleLarge?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
+                  Text('Dashboard', style: theme.textTheme.titleLarge?.copyWith(color: textColor, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
                   if (userName != null) ...[
                     const SizedBox(height: 2),
-                    Text('Welcome back, $userName', style: theme.textTheme.bodyMedium?.copyWith(color: cs.onPrimary.withOpacity(.92))),
+                    Text('Welcome back, $userName', style: theme.textTheme.bodyMedium?.copyWith(color: textColor.withOpacity(.85))),
                   ],
                 ],
               ),
             ),
             Container(
               decoration: BoxDecoration(
-                color: cs.onPrimary.withOpacity(.12),
+                color: textColor.withOpacity(.08),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: Icon(Icons.notifications_none_rounded, color: cs.onPrimary),
+                icon: Icon(Icons.notifications_none_rounded, color: textColor),
                 onPressed: () {},
                 tooltip: 'Notifications',
               ),
@@ -364,8 +410,8 @@ class _NextBookingCard extends StatelessWidget {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(color: cs.onSecondaryContainer.withOpacity(.12), borderRadius: BorderRadius.circular(10)),
-          child: Icon(Icons.schedule, color: cs.onSecondaryContainer),
+          decoration: BoxDecoration(color: const Color(0xFFC1E8F7), borderRadius: BorderRadius.circular(10)),
+          child: const Icon(Icons.schedule, color: Color(0xFF1E3A8A)),
         ),
         title: Text(title, style: TextStyle(color: cs.onSecondaryContainer, fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle, style: TextStyle(color: cs.onSecondaryContainer.withOpacity(.9))),
@@ -384,10 +430,30 @@ class _BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    Color statusColor = cs.primary;
-    if (status.toLowerCase() == 'completed') statusColor = Colors.green;
-    if (status.toLowerCase() == 'cancelled') statusColor = Colors.red;
+    // Enhanced status colors with better contrast
+    Color statusBg;
+    Color statusText;
+    switch (status.toLowerCase()) {
+      case 'pending':
+        statusBg = const Color(0xFFF59E0B); // amber-500
+        statusText = Colors.white;
+        break;
+      case 'confirmed':
+        statusBg = const Color(0xFF10B981); // emerald-500
+        statusText = Colors.white;
+        break;
+      case 'completed':
+        statusBg = const Color(0xFF64748B); // slate-500
+        statusText = Colors.white;
+        break;
+      case 'cancelled':
+        statusBg = const Color(0xFFEF4444); // red-500
+        statusText = Colors.white;
+        break;
+      default:
+        statusBg = const Color(0xFF1E3A8A);
+        statusText = Colors.white;
+    }
 
     return Card(
       elevation: 0,
@@ -405,8 +471,8 @@ class _BookingCard extends StatelessWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: cs.primary.withOpacity(.12), borderRadius: BorderRadius.circular(10)),
-                child: Icon(Icons.event_note_rounded, color: cs.primary, size: 20),
+                decoration: BoxDecoration(color: const Color(0xFFC1E8F7), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.event_note_rounded, color: Color(0xFF1E3A8A), size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -415,15 +481,33 @@ class _BookingCard extends StatelessWidget {
                   children: [
                     Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                     const SizedBox(height: 3),
+                    // Pet name row
                     Row(
                       children: [
-                        Icon(Icons.pets, size: 14, color: Theme.of(context).hintColor),
-                        const SizedBox(width: 4),
-                        Expanded(child: Text(petName, style: Theme.of(context).textTheme.bodySmall)),
-                        const SizedBox(width: 8),
-                        Icon(Icons.access_time, size: 14, color: Theme.of(context).hintColor),
-                        const SizedBox(width: 4),
-                        Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                        const Icon(Icons.pets, size: 14, color: Color(0xFF1E3A8A)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            petName,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // Date time row (now below name)
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 14, color: Color(0xFF1E3A8A)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            subtitle,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -433,10 +517,25 @@ class _BookingCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(.12),
-                  borderRadius: BorderRadius.circular(999),
+                  color: statusBg,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: statusBg.withOpacity(0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                child: Text(status, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: statusColor, fontWeight: FontWeight.w600)),
+                child: Text(
+                  status,
+                  style: TextStyle(
+                    color: statusText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
+                ),
               ),
             ],
           ),
@@ -608,24 +707,16 @@ class _DashboardSkeleton extends StatelessWidget {
 class _QuickActionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+  const accentColor = Color(0xFF1E3A8A); // Dark navy
+    
     return Row(
       children: [
         Expanded(
           child: _ActionCard(
-            color: cs.primary,
-            icon: Icons.add_circle_outline,
-            label: 'Add pet',
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PetFormScreen())),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ActionCard(
-            color: cs.secondary,
-            icon: Icons.event_available_outlined,
-            label: 'Book visit',
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateBookingScreen())),
+            color: accentColor,
+            icon: Icons.psychology_outlined,
+            label: 'AI Diagnose',
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AIDiagnoseScreen())),
           ),
         ),
       ],

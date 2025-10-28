@@ -31,6 +31,7 @@ class PetProvider extends ChangeNotifier {
   String _extractErrorMessage(Object e) {
     try {
       final errorStr = e.toString();
+      print("Error occurred: $errorStr");
       if (errorStr.contains('500')) {
         return 'Server error (500). Please check server logs.\nThe backend needs to be fixed.';
       }
@@ -101,7 +102,70 @@ class PetProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> updatePet(
+    int petId, {
+    required String name,
+    required String species,
+    String? breed,
+    int? age,
+    String? gender,
+    String? color,
+    double? weight,
+    String? microchipId,
+    String? medicalNotes,
+  }) async {
+    try {
+      final updated = await _service.updatePet(
+        petId,
+        name: name,
+        species: species,
+        breed: breed,
+        age: age,
+        gender: gender,
+        color: color,
+        weight: weight,
+        microchipId: microchipId,
+        medicalNotes: medicalNotes,
+      );
+      
+      final idx = _pets.indexWhere((p) => p.id == petId);
+      if (idx != -1) {
+        _pets[idx] = updated;
+        notifyListeners();
+      }
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
   Future<List<Treatment>> fetchTreatments(int petId) async {
     return _service.getPetTreatments(petId);
+  }
+
+  Future<void> releaseTag(int petId) async {
+    try {
+      await _service.releaseTagFromPet(petId);
+      final idx = _pets.indexWhere((p) => p.id == petId);
+      if (idx != -1) {
+        final p = _pets[idx];
+        _pets[idx] = Pet(
+          id: p.id,
+          name: p.name,
+          species: p.species,
+          breed: p.breed,
+          age: p.age,
+          gender: p.gender,
+          color: p.color,
+          weight: p.weight,
+          microchipId: p.microchipId,
+          medicalNotes: p.medicalNotes,
+          tag: null, // Remove the tag
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      throw Exception('Failed to release tag: $e');
+    }
   }
 }

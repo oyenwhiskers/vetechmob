@@ -35,7 +35,7 @@ class Booking {
         bookingDate: json['booking_date'] as String? ?? '',
         bookingTime: json['booking_time'] as String? ?? '',
         serviceType: json['service_type'] as String? ?? '',
-        status: json['status'] as String? ?? 'upcoming',
+        status: json['status'] as String? ?? 'pending',
         notes: json['notes'] as String?,
       );
 }

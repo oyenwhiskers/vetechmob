@@ -36,6 +36,32 @@ class AuthService {
       'password_confirmation': password,
     };
     final res = await _api.post('/register', data: payload);
+    
+    // Check for error status codes
+    if (res.statusCode != null && res.statusCode! >= 400) {
+      final data = res.data;
+      String errorMessage = 'Registration failed';
+      
+      if (data is Map<String, dynamic>) {
+        if (data['message'] != null) {
+          errorMessage = data['message'].toString();
+        } else if (data['error'] != null) {
+          errorMessage = data['error'].toString();
+        } else if (data['errors'] != null) {
+          // Handle validation errors
+          final errors = data['errors'];
+          if (errors is Map<String, dynamic>) {
+            final firstError = errors.values.first;
+            if (firstError is List && firstError.isNotEmpty) {
+              errorMessage = firstError.first.toString();
+            }
+          }
+        }
+      }
+      
+      throw Exception(errorMessage);
+    }
+    
     final data = (res.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
     final auth = AuthResponse.fromJson(data);
     await _api.saveToken(auth.token);
@@ -44,6 +70,23 @@ class AuthService {
 
   Future<AuthResponse> login({required String email, required String password}) async {
     final res = await _api.post('/login', data: {'email': email, 'password': password});
+    
+    // Check for error status codes
+    if (res.statusCode != null && res.statusCode! >= 400) {
+      final data = res.data;
+      String errorMessage = 'Login failed';
+      
+      if (data is Map<String, dynamic>) {
+        if (data['message'] != null) {
+          errorMessage = data['message'].toString();
+        } else if (data['error'] != null) {
+          errorMessage = data['error'].toString();
+        }
+      }
+      
+      throw Exception(errorMessage);
+    }
+    
     final data = (res.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
     final auth = AuthResponse.fromJson(data);
     await _api.saveToken(auth.token);

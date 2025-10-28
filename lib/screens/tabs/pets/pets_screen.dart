@@ -138,13 +138,13 @@ class _PetsScreenState extends State<PetsScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: cs.primaryContainer,
+                          color: const Color(0xFFC1E8F7).withOpacity(0.5),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         alignment: Alignment.center,
                         child: isDogOrCat
-                            ? FaIcon(speciesIcon, color: cs.primary, size: 28)
-                            : Icon(speciesIcon, color: cs.primary, size: 28),
+                            ? FaIcon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)
+                            : Icon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28),
                       ),
                       const SizedBox(width: 14),
                       // Pet info
