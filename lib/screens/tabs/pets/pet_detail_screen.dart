@@ -910,6 +910,150 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     }
   }
 
+  Future<void> _showDeletePetDialog(Pet pet) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_forever,
+                  color: Colors.red,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Delete Pet',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E3A8A),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Are you sure you want to delete ${pet.name}? This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1E3A8A),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _deletePet(pet);
+    }
+  }
+
+  Future<void> _deletePet(Pet pet) async {
+    try {
+      final provider = Provider.of<PetProvider>(context, listen: false);
+      final error = await provider.deletePet(pet.id);
+      
+      if (error == null) {
+        if (mounted) {
+          Navigator.of(context).pop(); // Go back to pets list
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${pet.name} has been deleted'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete pet: $error'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete pet: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFFC1E8F7);
@@ -967,6 +1111,11 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
         foregroundColor: accentColor,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () => _showDeletePetDialog(p),
+            tooltip: 'Delete Pet',
+          ),
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => _showEditPetDialog(p),
@@ -1406,12 +1555,17 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
           ),
         ),
         const Spacer(),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: accentColor,
+        Flexible(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: accentColor,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            textAlign: TextAlign.end,
           ),
         ),
       ],

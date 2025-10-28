@@ -4,8 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/auth_provider.dart';
-import 'pets/pets_screen.dart';
-import 'bookings/bookings_screen.dart';
 import 'bookings/create_booking_screen.dart';
 import 'pets/pet_form_screen.dart';
 import 'pets/pet_detail_screen.dart';
@@ -114,13 +112,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               shrinkWrap: true,
               children: [
                 _StatCard(title: 'Pets', value: data.statistics.totalPets.toString(), icon: Icons.pets, color: Colors.teal, onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PetsScreen()));
+                  widget.onSwitchTab?.call(1); // Switch to Pets tab
                 }),
                 _StatCard(title: 'Bookings', value: data.statistics.totalBookings.toString(), icon: Icons.event_note, color: Colors.indigo, onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BookingsScreen()));
+                  widget.onSwitchTab?.call(2); // Switch to Bookings tab
                 }),
                 _StatCard(title: 'Upcoming', value: data.statistics.upcomingBookings.toString(), icon: Icons.upcoming, color: Colors.orange, onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BookingsScreen()));
+                  widget.onSwitchTab?.call(2); // Switch to Bookings tab
                 }),
                 _StatCard(title: 'Treatments', value: data.statistics.totalTreatments.toString(), icon: Icons.medical_information, color: Colors.pink, onTap: () {}),
               ],
@@ -467,6 +465,7 @@ class _BookingCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 40,
@@ -478,8 +477,14 @@ class _BookingCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                     const SizedBox(height: 3),
                     // Pet name row
                     Row(
@@ -491,6 +496,7 @@ class _BookingCard extends StatelessWidget {
                             petName,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ],
@@ -506,6 +512,7 @@ class _BookingCard extends StatelessWidget {
                             subtitle,
                             style: Theme.of(context).textTheme.bodySmall,
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ],
@@ -513,7 +520,8 @@ class _BookingCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
+              // Status badge positioned on right
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
@@ -535,6 +543,8 @@ class _BookingCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.2,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ],

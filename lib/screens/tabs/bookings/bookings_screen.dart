@@ -85,6 +85,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
       child: Text(
         status,
         style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.2),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
       ),
     );
   }
@@ -104,6 +106,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Icon circle - vertically centered
           Container(
@@ -117,6 +120,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   b.serviceType,
@@ -125,15 +129,21 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
                     const Icon(Icons.calendar_today, size: 16, color: _accent),
                     const SizedBox(width: 6),
-                    Text(
-                      '$dateText • $timeText',
-                      style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w600),
+                    Expanded(
+                      child: Text(
+                        '$dateText • $timeText',
+                        style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
                   ],
                 ),
@@ -142,16 +152,21 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   children: [
                     const Icon(Icons.pets, size: 16, color: _accent),
                     const SizedBox(width: 6),
-                    Text(
-                      b.pet.name,
-                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    Expanded(
+                      child: Text(
+                        b.pet.name,
+                        style: const TextStyle(color: Colors.black54, fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          // Status chip - vertically centered
+          const SizedBox(width: 12),
+          // Status chip - positioned on the right, vertically centered
           _statusChip(b.status),
         ],
       ),

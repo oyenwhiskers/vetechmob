@@ -168,4 +168,15 @@ class PetProvider extends ChangeNotifier {
       throw Exception('Failed to release tag: $e');
     }
   }
+
+  Future<String?> deletePet(int petId) async {
+    try {
+      await _service.deletePet(petId);
+      _pets.removeWhere((p) => p.id == petId);
+      notifyListeners();
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }

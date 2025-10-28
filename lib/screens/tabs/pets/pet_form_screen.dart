@@ -19,8 +19,6 @@ class _PetFormScreenState extends State<PetFormScreen> {
   String? _gender;
   final _color = TextEditingController();
   final _weight = TextEditingController();
-  final _microchip = TextEditingController();
-  final _notes = TextEditingController();
 
   bool _saving = false;
 
@@ -31,8 +29,6 @@ class _PetFormScreenState extends State<PetFormScreen> {
     _age.dispose();
     _color.dispose();
     _weight.dispose();
-    _microchip.dispose();
-    _notes.dispose();
     super.dispose();
   }
 
@@ -49,8 +45,8 @@ class _PetFormScreenState extends State<PetFormScreen> {
       gender: _gender,
       color: _color.text.trim().isEmpty ? null : _color.text.trim(),
       weight: _weight.text.trim().isEmpty ? null : double.tryParse(_weight.text.trim()),
-      microchipId: _microchip.text.trim().isEmpty ? null : _microchip.text.trim(),
-      medicalNotes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      microchipId: null,
+      medicalNotes: null,
       tag: null,
     );
     final err = await provider.addPet(pet);
@@ -217,28 +213,6 @@ class _PetFormScreenState extends State<PetFormScreen> {
                           ),
                         ),
                       ],
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Additional Information Section
-                    _buildSectionTitle('Additional Information', Icons.add_circle_outline),
-                    const SizedBox(height: 16),
-                    
-                    _buildTextField(
-                      controller: _microchip,
-                      label: 'Microchip ID',
-                      hint: 'Optional',
-                      icon: Icons.qr_code_2_outlined,
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    _buildTextField(
-                      controller: _notes,
-                      label: 'Medical Notes',
-                      hint: 'Any allergies, conditions, or important notes...',
-                      icon: Icons.medical_information_outlined,
-                      maxLines: 4,
                     ),
                     
                     const SizedBox(height: 32),

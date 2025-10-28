@@ -155,6 +155,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: 'Full name',
+                      labelStyle: const TextStyle(color: accentColor),
+                      floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your full name',
                       prefixIcon: const Icon(Icons.person_outline, color: accentColor),
                       filled: true,
@@ -185,6 +187,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
+                      labelStyle: const TextStyle(color: accentColor),
+                      floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your email',
                       prefixIcon: const Icon(Icons.email_outlined, color: accentColor),
                       filled: true,
@@ -220,6 +224,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _phoneController,
                     decoration: InputDecoration(
                       labelText: 'Phone',
+                      labelStyle: const TextStyle(color: accentColor),
+                      floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your phone number',
                       prefixIcon: const Icon(Icons.phone_outlined, color: accentColor),
                       filled: true,
@@ -251,6 +257,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _icController,
                     decoration: InputDecoration(
                       labelText: 'IC number (e.g., 901234-12-5678)',
+                      labelStyle: const TextStyle(color: accentColor),
+                      floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your IC number',
                       prefixIcon: const Icon(Icons.badge_outlined, color: accentColor),
                       filled: true,
@@ -281,6 +289,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _addressController,
                     decoration: InputDecoration(
                       labelText: 'Address',
+                      labelStyle: const TextStyle(color: accentColor),
+                      floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your address',
                       prefixIcon: const Icon(Icons.home_outlined, color: accentColor),
                       filled: true,
@@ -312,6 +322,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Password',
+                      labelStyle: const TextStyle(color: accentColor),
+                      floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Create a password (min 8 characters)',
                       prefixIcon: const Icon(Icons.lock_outline, color: accentColor),
                       suffixIcon: IconButton(

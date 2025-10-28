@@ -100,9 +100,64 @@ class PetService {
   }
 
   Future<PetTag> assignTagToPet({required int petId, required String tagCode}) async {
-    final res = await _api.post('/pets/$petId/assign-tag', data: {'tag_code': tagCode});
-    final data = (res.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
-    return PetTag.fromJson(data['tag'] as Map<String, dynamic>);
+    try {
+      print('🏷️ Assigning tag: $tagCode to pet: $petId');
+      
+      final res = await _api.post('/pets/$petId/assign-tag', data: {'tag_code': tagCode});
+      
+      print('📡 Response status: ${res.statusCode}');
+      print('📦 Response data type: ${res.data.runtimeType}');
+      print('📦 Response data: ${res.data}');
+      
+      // Check for HTTP errors
+      if (res.statusCode == null || res.statusCode! < 200 || res.statusCode! >= 300) {
+        final errorMessage = res.data is Map ? (res.data['message'] ?? 'Server error') : 'Server error';
+        throw Exception('HTTP ${res.statusCode}: $errorMessage');
+      }
+      
+      // Handle response safely
+      if (res.data == null) {
+        throw Exception('Empty response from server');
+      }
+      
+      final responseData = res.data as Map<String, dynamic>;
+      print('✅ Parsed response data: $responseData');
+      
+      // Check for success flag
+      if (responseData['success'] != true) {
+        final message = responseData['message'] ?? 'Tag assignment failed';
+        throw Exception(message);
+      }
+      
+      // Get the data object
+      if (!responseData.containsKey('data') || responseData['data'] == null) {
+        print('❌ Response structure: ${responseData.keys.toList()}');
+        throw Exception('Response missing data field. Got keys: ${responseData.keys.toList()}');
+      }
+      
+      final data = responseData['data'] as Map<String, dynamic>;
+      print('📋 Data object: $data');
+      print('📋 Data keys: ${data.keys.toList()}');
+      
+      // Get the tag from data
+      if (!data.containsKey('tag') || data['tag'] == null) {
+        print('❌ Data structure: ${data.keys.toList()}');
+        throw Exception('Response missing tag in data. Got keys: ${data.keys.toList()}');
+      }
+      
+      final tagData = data['tag'] as Map<String, dynamic>;
+      print('🏷️ Tag data: $tagData');
+      
+      // Create and return PetTag
+      final petTag = PetTag.fromJson(tagData);
+      print('✅ Created PetTag: id=${petTag.id}, code=${petTag.tagCode}');
+      
+      return petTag;
+    } catch (e, stackTrace) {
+      print('❌ Error in assignTagToPet: $e');
+      print('📚 Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   Future<void> releaseTagFromPet(int petId) async {
