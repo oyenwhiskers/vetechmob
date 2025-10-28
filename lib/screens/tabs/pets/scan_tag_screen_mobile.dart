@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanTagScreenImpl extends StatefulWidget {
   const ScanTagScreenImpl({super.key});
@@ -10,17 +10,16 @@ class ScanTagScreenImpl extends StatefulWidget {
 }
 
 class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? controller;
+  final MobileScannerController controller = MobileScannerController();
   bool _handled = false;
 
   @override
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller?.pauseCamera();
+      controller.stop();
     } else if (Platform.isIOS) {
-      controller?.resumeCamera();
+      controller.start();
     }
   }
 
@@ -32,16 +31,24 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
         children: <Widget>[
           Expanded(
             flex: 4,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: QrScannerOverlayShape(
-                borderColor: Colors.teal,
-                borderRadius: 10,
-                borderLength: 30,
-                borderWidth: 10,
-                cutOutSize: MediaQuery.of(context).size.width * 0.8,
-              ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                MobileScanner(
+                  controller: controller,
+                  onDetect: _onDetect,
+                ),
+                // Simple overlay
+                IgnorePointer(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.teal, width: 4),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    margin: const EdgeInsets.all(24),
+                  ),
+                )
+              ],
             ),
           ),
           const Expanded(
@@ -53,23 +60,23 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) async {
-      if (_handled) return;
-      final code = scanData.code?.trim();
-      if (code != null && code.isNotEmpty) {
-        _handled = true;
-        await controller.pauseCamera();
-        if (!mounted) return;
-        Navigator.of(context).pop(code);
-      }
-    });
+  void _onDetect(BarcodeCapture capture) async {
+    if (_handled) return;
+    final barcodes = capture.barcodes;
+    if (barcodes.isEmpty) return;
+    final value = barcodes.first.rawValue ?? barcodes.first.displayValue;
+    final code = value?.trim();
+    if (code != null && code.isNotEmpty) {
+      _handled = true;
+      await controller.stop();
+      if (!mounted) return;
+      Navigator.of(context).pop(code);
+    }
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 }
