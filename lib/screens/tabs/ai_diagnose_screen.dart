@@ -17,14 +17,36 @@ class AIDiagnoseScreen extends StatefulWidget {
 class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  bool _isApiKeySet = false;
+  bool _isCheckingApiKey = true;
 
   @override
   void initState() {
     super.initState();
+    _checkApiKey();
     // Load pets when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<PetProvider>(context, listen: false).fetch();
     });
+  }
+
+  Future<void> _checkApiKey() async {
+    try {
+      final isSet = await AIService().isApiKeySet();
+      if (mounted) {
+        setState(() {
+          _isApiKeySet = isSet;
+          _isCheckingApiKey = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isApiKeySet = false;
+          _isCheckingApiKey = false;
+        });
+      }
+    }
   }
 
   @override
@@ -185,37 +207,21 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<bool>(
-        future: AIService().isApiKeySet(),
-        builder: (context, snapshot) {
-          // Show loading while checking API key
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: _isCheckingApiKey
+          ? const Center(child: CircularProgressIndicator())
+          : !_isApiKeySet
+              ? _buildApiKeyWarning()
+              : Consumer2<AIDiagnoseProvider, PetProvider>(
+                  builder: (context, aiProvider, petProvider, _) {
+                    // Show pet selection if no pet selected
+                    if (!aiProvider.hasPetSelected) {
+                      return _buildPetSelection(petProvider, aiProvider);
+                    }
 
-          // Check if API key is set
-          if (snapshot.hasData && !snapshot.data!) {
-            return _buildApiKeyWarning();
-          }
-
-          // API key error
-          if (snapshot.hasError) {
-            return _buildApiKeyWarning();
-          }
-
-          return Consumer2<AIDiagnoseProvider, PetProvider>(
-            builder: (context, aiProvider, petProvider, _) {
-              // Show pet selection if no pet selected
-              if (!aiProvider.hasPetSelected) {
-                return _buildPetSelection(petProvider, aiProvider);
-              }
-
-              // Show chat interface
-              return _buildChatInterface(aiProvider);
-            },
-          );
-        },
-      ),
+                    // Show chat interface
+                    return _buildChatInterface(aiProvider);
+                  },
+                ),
     );
   }
 
