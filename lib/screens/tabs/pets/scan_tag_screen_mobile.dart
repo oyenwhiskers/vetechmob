@@ -35,7 +35,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFFC1E8F7);
     const accentColor = Color(0xFF1E3A8A);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -50,7 +50,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            color: primaryColor.withOpacity(0.3),
+            color: primaryColor.withValues(alpha: 0.3),
             child: Row(
               children: [
                 const Icon(Icons.qr_code_scanner, color: accentColor),
@@ -68,7 +68,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
               ],
             ),
           ),
-          
+
           // Scanner view
           Expanded(
             child: Stack(
@@ -172,7 +172,10 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                             height: 40,
                             decoration: const BoxDecoration(
                               border: Border(
-                                bottom: BorderSide(color: Colors.teal, width: 6),
+                                bottom: BorderSide(
+                                  color: Colors.teal,
+                                  width: 6,
+                                ),
                                 left: BorderSide(color: Colors.teal, width: 6),
                               ),
                             ),
@@ -187,7 +190,10 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                             height: 40,
                             decoration: const BoxDecoration(
                               border: Border(
-                                bottom: BorderSide(color: Colors.teal, width: 6),
+                                bottom: BorderSide(
+                                  color: Colors.teal,
+                                  width: 6,
+                                ),
                                 right: BorderSide(color: Colors.teal, width: 6),
                               ),
                             ),
@@ -206,7 +212,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.9),
+                        color: Colors.red.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -222,7 +228,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
               ],
             ),
           ),
-          
+
           // Bottom instructions
           Container(
             padding: EdgeInsets.only(
@@ -240,10 +246,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                     const SizedBox(width: 8),
                     Text(
                       'Position QR code clearly in the frame',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                     ),
                   ],
                 ),
@@ -255,7 +258,10 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: accentColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ],
@@ -268,15 +274,15 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
 
   void _onDetect(BarcodeCapture capture) async {
     if (_handled) return;
-    
+
     try {
       final barcodes = capture.barcodes;
       if (barcodes.isEmpty) return;
-      
+
       final barcode = barcodes.first;
       final value = barcode.rawValue ?? barcode.displayValue;
       final code = value?.trim();
-      
+
       if (code == null || code.isEmpty) {
         setState(() {
           _errorMessage = 'Invalid QR code';
@@ -290,13 +296,13 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
         });
         return;
       }
-      
+
       // Mark as handled and stop scanner
       _handled = true;
       await controller.stop();
-      
+
       if (!mounted) return;
-      
+
       // Return the scanned code
       Navigator.of(context).pop(code);
     } catch (e) {

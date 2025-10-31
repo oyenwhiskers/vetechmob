@@ -19,7 +19,9 @@ class _PetsScreenState extends State<PetsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<PetProvider>().fetch());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => context.read<PetProvider>().fetch(),
+    );
   }
 
   @override
@@ -40,9 +42,16 @@ class _PetsScreenState extends State<PetsScreen> {
             children: [
               Icon(Icons.error_outline, size: 48, color: cs.error),
               const SizedBox(height: 12),
-              Text('Something went wrong', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Something went wrong',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 6),
-              Text(provider.error!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                provider.error!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed: provider.fetch,
@@ -74,13 +83,17 @@ class _PetsScreenState extends State<PetsScreen> {
               const SizedBox(height: 24),
               Text(
                 'No pets yet',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Add your first pet to start managing their health records and appointments',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).hintColor,
+                ),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
@@ -89,7 +102,9 @@ class _PetsScreenState extends State<PetsScreen> {
                     MaterialPageRoute(builder: (_) => const PetFormScreen()),
                   );
                   if (created != null && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet added successfully')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Pet added successfully')),
+                    );
                   }
                 },
                 icon: const Icon(Icons.add),
@@ -115,20 +130,27 @@ class _PetsScreenState extends State<PetsScreen> {
             final speciesIcon = speciesLower == 'dog'
                 ? FontAwesomeIcons.dog
                 : speciesLower == 'cat'
-                    ? FontAwesomeIcons.cat
-                    : Icons.cruelty_free;
-            final speciesDisplay = p.species.substring(0, 1).toUpperCase() + p.species.substring(1).toLowerCase();
+                ? FontAwesomeIcons.cat
+                : Icons.cruelty_free;
+            final speciesDisplay =
+                p.species.substring(0, 1).toUpperCase() +
+                p.species.substring(1).toLowerCase();
 
             return Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.1), width: 1),
+                side: BorderSide(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                  width: 1,
+                ),
               ),
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => PetDetailScreen(petId: p.id)),
+                  MaterialPageRoute(
+                    builder: (_) => PetDetailScreen(petId: p.id),
+                  ),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(14.0),
@@ -139,14 +161,23 @@ class _PetsScreenState extends State<PetsScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: (p.petImageUrl != null && p.petImageUrl!.isNotEmpty)
+                          color:
+                              (p.petImageUrl != null &&
+                                  p.petImageUrl!.isNotEmpty)
                               ? null
-                              : const Color(0xFFC1E8F7).withOpacity(0.5),
+                              : const Color(0xFFC1E8F7).withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(14),
+                          border: p.isDeceased
+                              ? Border.all(
+                                  color: Colors.grey.shade400,
+                                  width: 2,
+                                )
+                              : null,
                         ),
                         clipBehavior: Clip.antiAlias,
                         alignment: Alignment.center,
-                        child: (p.petImageUrl != null && p.petImageUrl!.isNotEmpty)
+                        child:
+                            (p.petImageUrl != null && p.petImageUrl!.isNotEmpty)
                             ? CachedNetworkImage(
                                 imageUrl: p.petImageUrl!,
                                 width: 56,
@@ -155,15 +186,33 @@ class _PetsScreenState extends State<PetsScreen> {
                                 placeholder: (context, url) => const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                                 errorWidget: (context, url, error) => isDogOrCat
-                                    ? FaIcon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)
-                                    : Icon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28),
+                                    ? FaIcon(
+                                        speciesIcon,
+                                        color: const Color(0xFF1E3A8A),
+                                        size: 28,
+                                      )
+                                    : Icon(
+                                        speciesIcon,
+                                        color: const Color(0xFF1E3A8A),
+                                        size: 28,
+                                      ),
                               )
                             : (isDogOrCat
-                                ? FaIcon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)
-                                : Icon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)),
+                                  ? FaIcon(
+                                      speciesIcon,
+                                      color: const Color(0xFF1E3A8A),
+                                      size: 28,
+                                    )
+                                  : Icon(
+                                      speciesIcon,
+                                      color: const Color(0xFF1E3A8A),
+                                      size: 28,
+                                    )),
                       ),
                       const SizedBox(width: 14),
                       // Pet info
@@ -173,21 +222,40 @@ class _PetsScreenState extends State<PetsScreen> {
                           children: [
                             Text(
                               p.name,
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
                                 Text(
                                   speciesDisplay,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context).hintColor,
+                                      ),
                                 ),
                                 if (p.breed != null && p.breed!.isNotEmpty) ...[
-                                  Text(' • ', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor)),
+                                  Text(
+                                    ' • ',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context).hintColor,
+                                        ),
+                                  ),
                                   Expanded(
                                     child: Text(
                                       p.breed!,
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: Theme.of(context).hintColor,
+                                          ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -198,7 +266,12 @@ class _PetsScreenState extends State<PetsScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 '${p.age} ${p.age == 1 ? 'year' : 'years'} old',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor.withOpacity(0.8)),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).hintColor.withValues(alpha: 0.8),
+                                    ),
                               ),
                             ],
                           ],
@@ -212,25 +285,42 @@ class _PetsScreenState extends State<PetsScreen> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(.12),
+                                color: Colors.green.withValues(alpha: .12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.qr_code_2, color: Colors.green, size: 20),
+                              child: const Icon(
+                                Icons.qr_code_2,
+                                color: Colors.green,
+                                size: 20,
+                              ),
                             )
                           else
                             IconButton(
                               icon: const Icon(Icons.qr_code_scanner),
                               tooltip: 'Assign QR tag',
                               onPressed: () async {
-                                final tag = await Navigator.of(context).push<String>(
-                                  MaterialPageRoute(builder: (_) => ScanTagScreen()),
-                                );
+                                final tag = await Navigator.of(context)
+                                    .push<String>(
+                                      MaterialPageRoute(
+                                        builder: (_) => ScanTagScreen(),
+                                      ),
+                                    );
                                 if (tag != null && mounted) {
-                                  final err = await context.read<PetProvider>().assignTag(p.id, tag);
+                                  final err = await context
+                                      .read<PetProvider>()
+                                      .assignTag(p.id, tag);
                                   if (err != null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(err)),
+                                    );
                                   } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tag assigned successfully')));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Tag assigned successfully',
+                                        ),
+                                      ),
+                                    );
                                   }
                                 }
                               },
@@ -238,7 +328,10 @@ class _PetsScreenState extends State<PetsScreen> {
                         ],
                       ),
                       const SizedBox(width: 4),
-                      Icon(Icons.chevron_right_rounded, color: Theme.of(context).hintColor),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Theme.of(context).hintColor,
+                      ),
                     ],
                   ),
                 ),
@@ -249,11 +342,13 @@ class _PetsScreenState extends State<PetsScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          final created = await Navigator.of(context).push<Pet>(
-            MaterialPageRoute(builder: (_) => const PetFormScreen()),
-          );
+          final created = await Navigator.of(
+            context,
+          ).push<Pet>(MaterialPageRoute(builder: (_) => const PetFormScreen()));
           if (created != null && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pet added successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Pet added successfully')),
+            );
           }
         },
         label: const Text('Add Pet'),

@@ -19,6 +19,7 @@ class Pet extends Model
         'breed',
         'age',
         'gender',
+        'status',
         'color',
         'weight',
         'microchip_number',

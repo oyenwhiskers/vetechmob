@@ -19,6 +19,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   String? _gender;
   final _color = TextEditingController();
   final _weight = TextEditingController();
+  final _microchip = TextEditingController();
 
   bool _saving = false;
 
@@ -29,6 +30,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
     _age.dispose();
     _color.dispose();
     _weight.dispose();
+    _microchip.dispose();
     super.dispose();
   }
 
@@ -44,8 +46,12 @@ class _PetFormScreenState extends State<PetFormScreen> {
       age: _age.text.trim().isEmpty ? null : int.tryParse(_age.text.trim()),
       gender: _gender,
       color: _color.text.trim().isEmpty ? null : _color.text.trim(),
-      weight: _weight.text.trim().isEmpty ? null : double.tryParse(_weight.text.trim()),
-      microchipId: null,
+      weight: _weight.text.trim().isEmpty
+          ? null
+          : double.tryParse(_weight.text.trim()),
+      microchipId: _microchip.text.trim().isEmpty
+          ? null
+          : _microchip.text.trim(),
       medicalNotes: null,
       tag: null,
     );
@@ -63,7 +69,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFFC1E8F7);
     const accentColor = Color(0xFF1E3A8A);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -91,7 +97,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.pets, size: 50, color: accentColor),
@@ -109,14 +115,14 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   Text(
                     'Fill in the details below',
                     style: TextStyle(
-                      color: accentColor.withOpacity(0.8),
+                      color: accentColor.withValues(alpha: 0.8),
                       fontSize: 14,
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             // Form Section
             Padding(
               padding: const EdgeInsets.all(20),
@@ -128,16 +134,18 @@ class _PetFormScreenState extends State<PetFormScreen> {
                     // Basic Information Section
                     _buildSectionTitle('Basic Information', Icons.info_outline),
                     const SizedBox(height: 16),
-                    
+
                     _buildTextField(
                       controller: _name,
                       label: 'Pet Name',
                       hint: 'e.g., Max, Bella',
                       icon: Icons.badge_outlined,
-                      validator: (v) => v == null || v.isEmpty ? 'Pet name is required' : null,
+                      validator: (v) => v == null || v.isEmpty
+                          ? 'Pet name is required'
+                          : null,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     _buildDropdownField(
                       label: 'Species',
                       value: _species,
@@ -149,20 +157,23 @@ class _PetFormScreenState extends State<PetFormScreen> {
                       onChanged: (v) => setState(() => _species = v ?? 'dog'),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     _buildTextField(
                       controller: _breed,
                       label: 'Breed',
                       hint: 'e.g., Golden Retriever',
                       icon: Icons.pets_outlined,
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Physical Details Section
-                    _buildSectionTitle('Physical Details', Icons.fitness_center_outlined),
+                    _buildSectionTitle(
+                      'Physical Details',
+                      Icons.fitness_center_outlined,
+                    ),
                     const SizedBox(height: 16),
-                    
+
                     Row(
                       children: [
                         Expanded(
@@ -181,9 +192,18 @@ class _PetFormScreenState extends State<PetFormScreen> {
                             value: _gender,
                             icon: Icons.wc_outlined,
                             items: const [
-                              DropdownMenuItem(value: null, child: Text('Select')),
-                              DropdownMenuItem(value: 'male', child: Text('Male')),
-                              DropdownMenuItem(value: 'female', child: Text('Female')),
+                              DropdownMenuItem(
+                                value: null,
+                                child: Text('Select'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'male',
+                                child: Text('Male'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'female',
+                                child: Text('Female'),
+                              ),
                             ],
                             onChanged: (v) => setState(() => _gender = v),
                           ),
@@ -191,7 +211,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     Row(
                       children: [
                         Expanded(
@@ -214,9 +234,19 @@ class _PetFormScreenState extends State<PetFormScreen> {
                         ),
                       ],
                     ),
-                    
+
+                    const SizedBox(height: 16),
+
+                    _buildTextField(
+                      controller: _microchip,
+                      label: 'Microchip Number',
+                      hint: 'e.g., 9851 0000 1234 567',
+                      icon: Icons.memory_outlined,
+                      keyboardType: TextInputType.text,
+                    ),
+
                     const SizedBox(height: 32),
-                    
+
                     // Save Button
                     SizedBox(
                       width: double.infinity,
@@ -237,7 +267,9 @@ class _PetFormScreenState extends State<PetFormScreen> {
                                 width: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : const Row(
@@ -266,10 +298,10 @@ class _PetFormScreenState extends State<PetFormScreen> {
       ),
     );
   }
-  
+
   Widget _buildSectionTitle(String title, IconData icon) {
     const accentColor = Color(0xFF1E3A8A);
-    
+
     return Row(
       children: [
         Icon(icon, size: 20, color: accentColor),
@@ -285,7 +317,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
       ],
     );
   }
-  
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -297,7 +329,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }) {
     const primaryColor = Color(0xFFC1E8F7);
     const accentColor = Color(0xFF1E3A8A);
-    
+
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -305,7 +337,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
         hintText: hint,
         prefixIcon: Icon(icon, size: 22, color: accentColor),
         filled: true,
-        fillColor: primaryColor.withOpacity(0.2),
+        fillColor: primaryColor.withValues(alpha: 0.2),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: primaryColor),
@@ -322,14 +354,17 @@ class _PetFormScreenState extends State<PetFormScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.red),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
     );
   }
-  
+
   Widget _buildDropdownField({
     required String label,
     required String? value,
@@ -339,7 +374,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }) {
     const primaryColor = Color(0xFFC1E8F7);
     const accentColor = Color(0xFF1E3A8A);
-    
+
     return DropdownButtonFormField<String>(
       value: value,
       items: items,
@@ -348,7 +383,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
         labelText: label,
         prefixIcon: Icon(icon, size: 22, color: accentColor),
         filled: true,
-        fillColor: primaryColor.withOpacity(0.2),
+        fillColor: primaryColor.withValues(alpha: 0.2),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: primaryColor),
@@ -361,7 +396,10 @@ class _PetFormScreenState extends State<PetFormScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: accentColor, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
     );
   }

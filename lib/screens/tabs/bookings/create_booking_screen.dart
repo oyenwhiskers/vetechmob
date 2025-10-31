@@ -16,7 +16,8 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
   int? _petId;
   final _date = TextEditingController();
   final _time = TextEditingController();
-  String? _serviceType; // Changed from TextEditingController to String for dropdown
+  String?
+  _serviceType; // Changed from TextEditingController to String for dropdown
   final _notes = TextEditingController();
   bool _saving = false;
 
@@ -35,7 +36,13 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) => petsProv.fetch());
     }
     // Rebuild when focus changes to update styles
-    for (final n in [_petFocus, _dateFocus, _timeFocus, _serviceFocus, _notesFocus]) {
+    for (final n in [
+      _petFocus,
+      _dateFocus,
+      _timeFocus,
+      _serviceFocus,
+      _notesFocus,
+    ]) {
       n.addListener(() => setState(() {}));
     }
   }
@@ -73,12 +80,17 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
     return InputDecoration(
       labelText: label,
       // Make label more visible when floating
-  floatingLabelStyle: TextStyle(color: accent, fontWeight: FontWeight.w600),
+      floatingLabelStyle: TextStyle(color: accent, fontWeight: FontWeight.w600),
       // Fill only when focused to emulate the reference design
       filled: true,
-  fillColor: node.hasFocus ? accent.withOpacity(0.08) : Colors.transparent,
-    prefixIcon: prefixIcon != null
-      ? Icon(prefixIcon, color: node.hasFocus ? accent : Colors.grey.shade600)
+      fillColor: node.hasFocus
+          ? accent.withValues(alpha: 0.08)
+          : Colors.transparent,
+      prefixIcon: prefixIcon != null
+          ? Icon(
+              prefixIcon,
+              color: node.hasFocus ? accent : Colors.grey.shade600,
+            )
           : null,
       suffixIcon: suffixIcon,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -87,11 +99,17 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
       focusedBorder: focused,
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 1.5),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.error,
+          width: 1.5,
+        ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.error,
+          width: 2,
+        ),
       ),
     );
   }
@@ -100,12 +118,12 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     final err = await context.read<BookingProvider>().create(
-          petId: _petId!,
-          date: _date.text.trim(),
-          time: _time.text.trim(),
-          serviceType: _serviceType!,
-          notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
-        );
+      petId: _petId!,
+      date: _date.text.trim(),
+      time: _time.text.trim(),
+      serviceType: _serviceType!,
+      notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+    );
     setState(() => _saving = false);
     if (err == null && mounted) {
       Navigator.of(context).pop(true);
@@ -152,9 +170,15 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
           data: Theme.of(context).copyWith(
             inputDecorationTheme: InputDecorationTheme(
               labelStyle: const TextStyle(color: Colors.black87),
-              floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              floatingLabelStyle: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
               hintStyle: const TextStyle(color: Colors.black54),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
@@ -165,15 +189,24 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.secondary,
+                  width: 2,
+                ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 1.5),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.error,
+                  width: 1.5,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.error,
+                  width: 2,
+                ),
               ),
             ),
           ),
@@ -185,7 +218,12 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
                   focusNode: _petFocus,
                   value: _petId,
                   items: pets
-                      .map((Pet p) => DropdownMenuItem<int>(value: p.id, child: Text(p.name)))
+                      .map(
+                        (Pet p) => DropdownMenuItem<int>(
+                          value: p.id,
+                          child: Text(p.name),
+                        ),
+                      )
                       .toList(),
                   onChanged: (v) => setState(() => _petId = v),
                   decoration: _focusedDecoration(
@@ -207,7 +245,10 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
                     node: _dateFocus,
                     prefixIcon: Icons.calendar_today,
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.secondary),
+                      icon: Icon(
+                        Icons.calendar_today,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       onPressed: _pickDate,
                     ),
                   ),
@@ -223,7 +264,10 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
                     node: _timeFocus,
                     prefixIcon: Icons.schedule,
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.schedule, color: Theme.of(context).colorScheme.secondary),
+                      icon: Icon(
+                        Icons.schedule,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       onPressed: _pickTime,
                     ),
                   ),
@@ -245,7 +289,8 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
                     prefixIcon: Icons.medical_services,
                   ),
                   iconEnabledColor: Theme.of(context).colorScheme.secondary,
-                  validator: (v) => v == null ? 'Please select a service type' : null,
+                  validator: (v) =>
+                      v == null ? 'Please select a service type' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -264,9 +309,11 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _saving ? null : _save,
-                    child: _saving ? const CircularProgressIndicator() : const Text('Create'),
+                    child: _saving
+                        ? const CircularProgressIndicator()
+                        : const Text('Create'),
                   ),
-                )
+                ),
               ],
             ),
           ),

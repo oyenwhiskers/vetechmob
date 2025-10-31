@@ -151,7 +151,8 @@ class BookingDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canCancel = booking.status.toLowerCase() == 'pending' ||
+    final canCancel =
+        booking.status.toLowerCase() == 'pending' ||
         booking.status.toLowerCase() == 'confirmed';
 
     return Scaffold(
@@ -182,7 +183,7 @@ class BookingDetailsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -205,17 +206,9 @@ class BookingDetailsScreen extends StatelessWidget {
                     'Time',
                     _formatTime(booking.bookingTime),
                   ),
-                  _infoRow(
-                    Icons.pets,
-                    'Pet',
-                    booking.pet.name,
-                  ),
+                  _infoRow(Icons.pets, 'Pet', booking.pet.name),
                   if (booking.notes != null && booking.notes!.isNotEmpty)
-                    _infoRow(
-                      Icons.note,
-                      'Notes',
-                      booking.notes!,
-                    ),
+                    _infoRow(Icons.note, 'Notes', booking.notes!),
                 ],
               ),
             ),
@@ -245,7 +238,9 @@ class BookingDetailsScreen extends StatelessWidget {
                                 width: 64,
                                 height: 64,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFEF4444).withOpacity(0.1),
+                                  color: const Color(
+                                    0xFFEF4444,
+                                  ).withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -281,16 +276,23 @@ class BookingDetailsScreen extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: OutlinedButton(
-                                      onPressed: () => Navigator.pop(context, false),
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
                                       style: OutlinedButton.styleFrom(
-                                        foregroundColor: const Color(0xFF1E3A8A),
+                                        foregroundColor: const Color(
+                                          0xFF1E3A8A,
+                                        ),
                                         side: const BorderSide(
                                           color: Color(0xFF1E3A8A),
                                           width: 1.5,
                                         ),
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -305,14 +307,21 @@ class BookingDetailsScreen extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: ElevatedButton(
-                                      onPressed: () => Navigator.pop(context, true),
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFEF4444),
+                                        backgroundColor: const Color(
+                                          0xFFEF4444,
+                                        ),
                                         foregroundColor: Colors.white,
                                         elevation: 0,
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -332,14 +341,19 @@ class BookingDetailsScreen extends StatelessWidget {
                       ),
                     );
                     if (confirm == true && context.mounted) {
-                      final err = await context.read<BookingProvider>().cancel(booking.id);
+                      final err = await context.read<BookingProvider>().cancel(
+                        booking.id,
+                      );
                       if (context.mounted) {
                         if (err != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(err)),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(err)));
                         } else {
-                          Navigator.pop(context, true); // Return true to refresh list
+                          Navigator.pop(
+                            context,
+                            true,
+                          ); // Return true to refresh list
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Booking cancelled')),
                           );
@@ -349,7 +363,10 @@ class BookingDetailsScreen extends StatelessWidget {
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFEF4444),
-                    side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                    side: const BorderSide(
+                      color: Color(0xFFEF4444),
+                      width: 1.5,
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -358,10 +375,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text(
                     'Cancel Booking',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

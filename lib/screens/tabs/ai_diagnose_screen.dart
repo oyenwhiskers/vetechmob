@@ -112,7 +112,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                                 width: 60,
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.1),
+                                  color: Colors.orange.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -147,13 +147,17 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                                     child: OutlinedButton(
                                       onPressed: () => Navigator.pop(context),
                                       style: OutlinedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
                                         side: BorderSide(
                                           color: Colors.grey.shade300,
                                           width: 1.5,
                                         ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                       child: Text(
@@ -176,10 +180,14 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orange,
                                         foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -210,18 +218,18 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
       body: _isCheckingApiKey
           ? const Center(child: CircularProgressIndicator())
           : !_isApiKeySet
-              ? _buildApiKeyWarning()
-              : Consumer2<AIDiagnoseProvider, PetProvider>(
-                  builder: (context, aiProvider, petProvider, _) {
-                    // Show pet selection if no pet selected
-                    if (!aiProvider.hasPetSelected) {
-                      return _buildPetSelection(petProvider, aiProvider);
-                    }
+          ? _buildApiKeyWarning()
+          : Consumer2<AIDiagnoseProvider, PetProvider>(
+              builder: (context, aiProvider, petProvider, _) {
+                // Show pet selection if no pet selected
+                if (!aiProvider.hasPetSelected) {
+                  return _buildPetSelection(petProvider, aiProvider);
+                }
 
-                    // Show chat interface
-                    return _buildChatInterface(aiProvider);
-                  },
-                ),
+                // Show chat interface
+                return _buildChatInterface(aiProvider);
+              },
+            ),
     );
   }
 
@@ -236,7 +244,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -270,7 +278,10 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
     );
   }
 
-  Widget _buildPetSelection(PetProvider petProvider, AIDiagnoseProvider aiProvider) {
+  Widget _buildPetSelection(
+    PetProvider petProvider,
+    AIDiagnoseProvider aiProvider,
+  ) {
     if (petProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -311,7 +322,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC1E8F7).withOpacity(0.3),
+                  color: const Color(0xFFC1E8F7).withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -355,7 +366,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: const Color(0xFFC1E8F7).withOpacity(0.3),
+                color: const Color(0xFFC1E8F7).withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -384,13 +395,15 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            ...petProvider.pets.map((pet) => Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: _PetSelectionCard(
-                pet: pet,
-                onTap: () => aiProvider.selectPet(pet),
+            ...petProvider.pets.map(
+              (pet) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _PetSelectionCard(
+                  pet: pet,
+                  onTap: () => aiProvider.selectPet(pet),
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),
@@ -402,7 +415,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
       children: [
         // Pet info header
         _buildPetInfoHeader(aiProvider),
-        
+
         // Loading medical history indicator
         if (aiProvider.isLoading)
           Container(
@@ -470,10 +483,8 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFC1E8F7).withOpacity(0.3),
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
-        ),
+        color: const Color(0xFFC1E8F7).withValues(alpha: 0.3),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Row(
         children: [
@@ -481,14 +492,10 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF1E3A8A).withOpacity(0.1),
+              color: const Color(0xFF1E3A8A).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.pets,
-              color: Color(0xFF1E3A8A),
-              size: 20,
-            ),
+            child: const Icon(Icons.pets, color: Color(0xFF1E3A8A), size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -504,10 +511,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                 ),
                 Text(
                   '${pet.species}${pet.breed != null ? ' • ${pet.breed}' : ''}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                 ),
               ],
             ),
@@ -537,7 +541,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -549,7 +553,8 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
             child: TextField(
               controller: _messageController,
               decoration: InputDecoration(
-                hintText: 'Ask about ${aiProvider.selectedPet?.name}\'s health...',
+                hintText:
+                    'Ask about ${aiProvider.selectedPet?.name}\'s health...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide(color: Colors.grey.shade300),
@@ -562,7 +567,10 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                   borderRadius: BorderRadius.circular(24),
                   borderSide: const BorderSide(color: Color(0xFF1E3A8A)),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
@@ -592,11 +600,7 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                    : const Icon(Icons.send, color: Colors.white, size: 20),
               ),
             ),
           ),
@@ -631,7 +635,7 @@ class _PetSelectionCard extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -686,7 +690,9 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
@@ -694,7 +700,7 @@ class _ChatBubble extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                color: const Color(0xFF1E3A8A).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -707,12 +713,19 @@ class _ChatBubble extends StatelessWidget {
           ],
           Flexible(
             child: Column(
-              crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: isUser ? const Color(0xFF1E3A8A) : Colors.grey.shade100,
+                    color: isUser
+                        ? const Color(0xFF1E3A8A)
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
@@ -785,10 +798,7 @@ class _ChatBubble extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('h:mm a').format(timestamp),
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                 ),
               ],
             ),
@@ -802,11 +812,7 @@ class _ChatBubble extends StatelessWidget {
                 color: const Color(0xFF1E3A8A),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 18),
             ),
           ],
         ],

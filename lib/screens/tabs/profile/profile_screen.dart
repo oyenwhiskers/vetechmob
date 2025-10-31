@@ -150,7 +150,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                            color: const Color(
+                              0xFF1E3A8A,
+                            ).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: ClipOval(
@@ -311,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
+                              color: Colors.orange.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -416,7 +418,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 side: BorderSide(
-                  color: Colors.red.withOpacity(0.3),
+                  color: Colors.red.withValues(alpha: 0.3),
                   width: 1.5,
                 ),
                 foregroundColor: Colors.red,
@@ -452,7 +454,7 @@ class _InfoRow extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: const Color(0xFF1E3A8A).withOpacity(0.1),
+            color: const Color(0xFF1E3A8A).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 18, color: const Color(0xFF1E3A8A)),
@@ -506,7 +508,7 @@ class _ActionButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 14),
-        side: BorderSide(color: color.withOpacity(0.3), width: 1.5),
+        side: BorderSide(color: color.withValues(alpha: 0.3), width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(

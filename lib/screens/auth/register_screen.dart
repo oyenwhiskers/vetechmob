@@ -34,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final auth = context.read<AuthProvider>();
     final err = await auth.register(
       name: _nameController.text.trim(),
@@ -44,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       address: _addressController.text.trim(),
       password: _passwordController.text,
     );
-    
+
     if (err == null) {
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(HomeShell.routeName);
@@ -77,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   String _extractUserFriendlyMessage(String error) {
-    if (error.toLowerCase().contains('email') && 
+    if (error.toLowerCase().contains('email') &&
         error.toLowerCase().contains('already')) {
       return 'Email already registered. Please login instead.';
     }
@@ -115,10 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         title: const Text(
           'Register',
-          style: TextStyle(
-            color: accentColor,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: accentColor, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
@@ -142,14 +139,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Fill in your details to get started',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 32),
 
-                  
                   // Full Name Field
                   TextFormField(
                     controller: _nameController,
@@ -158,9 +151,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your full name',
-                      prefixIcon: const Icon(Icons.person_outline, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.person_outline,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -171,17 +167,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.red, width: 1),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
-                    validator: (v) => v == null || v.isEmpty ? 'Full name is required' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Full name is required' : null,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -190,9 +193,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your email',
-                      prefixIcon: const Icon(Icons.email_outlined, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -203,11 +209,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.red, width: 1),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -218,7 +230,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Phone Field
                   TextFormField(
                     controller: _phoneController,
@@ -227,9 +239,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your phone number',
-                      prefixIcon: const Icon(Icons.phone_outlined, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.phone_outlined,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -240,18 +255,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.red, width: 1),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
                     keyboardType: TextInputType.phone,
-                    validator: (v) => v == null || v.isEmpty ? 'Phone number is required' : null,
+                    validator: (v) => v == null || v.isEmpty
+                        ? 'Phone number is required'
+                        : null,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // IC Number Field
                   TextFormField(
                     controller: _icController,
@@ -260,9 +283,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your IC number',
-                      prefixIcon: const Icon(Icons.badge_outlined, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.badge_outlined,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -273,17 +299,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.red, width: 1),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
-                    validator: (v) => v == null || v.isEmpty ? 'IC number is required' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'IC number is required' : null,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Address Field
                   TextFormField(
                     controller: _addressController,
@@ -292,9 +325,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your address',
-                      prefixIcon: const Icon(Icons.home_outlined, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.home_outlined,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -305,18 +341,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.red, width: 1),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
                     maxLines: 2,
-                    validator: (v) => v == null || v.isEmpty ? 'Address is required' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Address is required' : null,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Password Field
                   TextFormField(
                     controller: _passwordController,
@@ -325,16 +368,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Create a password (min 8 characters)',
-                      prefixIcon: const Icon(Icons.lock_outline, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: accentColor,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          _obscure
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                           color: accentColor,
                         ),
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -345,22 +393,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.red, width: 1),
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
                     obscureText: _obscure,
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Password is required';
-                      if (v.length < 8) return 'Password must be at least 8 characters';
+                      if (v.length < 8)
+                        return 'Password must be at least 8 characters';
                       return null;
                     },
                   ),
                   const SizedBox(height: 28),
-                  
+
                   // Create Account Button
                   SizedBox(
                     width: double.infinity,
@@ -370,7 +425,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: accentColor,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: accentColor.withOpacity(0.6),
+                        disabledBackgroundColor: accentColor.withValues(
+                          alpha: 0.6,
+                        ),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -410,17 +467,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Already have account
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         'Already have an account? ',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),

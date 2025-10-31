@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -194,7 +195,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
+                          color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -230,7 +231,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.grey.withOpacity(0.1),
+                          backgroundColor: Colors.grey.withValues(alpha: 0.1),
                         ),
                       ),
                     ],
@@ -310,7 +311,9 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                            color: const Color(
+                              0xFF1E3A8A,
+                            ).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(
@@ -396,7 +399,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 18, color: const Color(0xFF1E3A8A)),
@@ -489,9 +492,11 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -543,7 +548,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                     foregroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(
-                      color: Colors.red.withOpacity(0.5),
+                      color: Colors.red.withValues(alpha: 0.5),
                       width: 1.5,
                     ),
                     shape: RoundedRectangleBorder(
@@ -574,7 +579,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -588,7 +593,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -719,9 +724,13 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       text: pet.age?.toString() ?? '',
     );
     final genderController = TextEditingController(text: pet.gender ?? '');
+    final statusController = TextEditingController(text: pet.status ?? 'alive');
     final colorController = TextEditingController(text: pet.color ?? '');
     final weightController = TextEditingController(
       text: pet.weight?.toString() ?? '',
+    );
+    final microchipController = TextEditingController(
+      text: pet.microchipId ?? '',
     );
     final formKey = GlobalKey<FormState>();
 
@@ -841,6 +850,34 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: statusController.text.isEmpty
+                                ? 'alive'
+                                : statusController.text,
+                            decoration: InputDecoration(
+                              labelText: 'Status',
+                              prefixIcon: const Icon(Icons.pets),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'alive',
+                                child: Text('Alive'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'deceased',
+                                child: Text('Deceased'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                statusController.text = value;
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 16),
                           TextFormField(
                             controller: colorController,
                             decoration: InputDecoration(
@@ -860,6 +897,17 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                             decoration: InputDecoration(
                               labelText: 'Weight (kg)',
                               prefixIcon: const Icon(Icons.monitor_weight),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: microchipController,
+                            decoration: InputDecoration(
+                              labelText: 'Microchip ID',
+                              prefixIcon: const Icon(Icons.memory_outlined),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -940,8 +988,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
         final breed = breedController.text;
         final age = ageController.text;
         final gender = genderController.text;
+        final status = statusController.text;
         final color = colorController.text;
         final weight = weightController.text;
+        final microchip = microchipController.text;
 
         await _updatePet(
           pet.id,
@@ -950,8 +1000,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
           breed,
           age,
           gender,
+          status,
           color,
           weight,
+          microchip,
         );
       }
     } finally {
@@ -961,8 +1013,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       breedController.dispose();
       ageController.dispose();
       genderController.dispose();
+      statusController.dispose();
       colorController.dispose();
       weightController.dispose();
+      microchipController.dispose();
     }
   }
 
@@ -973,8 +1027,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     String breed,
     String age,
     String gender,
+    String status,
     String color,
     String weight,
+    String microchip,
   ) async {
     try {
       final provider = Provider.of<PetProvider>(context, listen: false);
@@ -985,8 +1041,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
         breed: breed.trim().isEmpty ? null : breed.trim(),
         age: age.trim().isEmpty ? null : int.tryParse(age.trim()),
         gender: gender.trim().isEmpty ? null : gender.trim(),
+        status: status.trim().isEmpty ? 'alive' : status.trim(),
         color: color.trim().isEmpty ? null : color.trim(),
         weight: weight.trim().isEmpty ? null : double.tryParse(weight.trim()),
+        microchipId: microchip.trim().isEmpty ? null : microchip.trim(),
       );
 
       if (error == null) {
@@ -1040,7 +1098,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -1261,11 +1319,17 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: accentColor.withOpacity(0.1),
+                              color: accentColor.withValues(alpha: 0.1),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
                           ],
+                          border: p.isDeceased
+                              ? Border.all(
+                                  color: Colors.grey.shade400,
+                                  width: 3,
+                                )
+                              : null,
                         ),
                         child: ClipOval(
                           child: p.petImageUrl != null
@@ -1317,6 +1381,31 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                         ),
                       ),
                     ),
+                    if (p.isDeceased) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.grey.shade400,
+                            width: 1,
+                          ),
+                        ),
+                        child: const Text(
+                          'Deceased',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (_uploadingImage)
                       const Padding(
                         padding: EdgeInsets.only(top: 8.0),
@@ -1345,7 +1434,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                           : _capitalize(p.species),
                       style: TextStyle(
                         fontSize: 16,
-                        color: accentColor.withOpacity(0.8),
+                        color: accentColor.withValues(alpha: 0.8),
                       ),
                     ),
                     if (p.tag != null) ...[
@@ -1358,10 +1447,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.15),
+                            color: Colors.green.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.green.withOpacity(0.3),
+                              color: Colors.green.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
@@ -1401,7 +1490,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                     const SizedBox(height: 12),
                     Container(
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.2),
+                        color: primaryColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       padding: const EdgeInsets.all(16),
@@ -1461,10 +1550,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
+                          color: Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.orange.withOpacity(0.3),
+                            color: Colors.orange.withValues(alpha: 0.3),
                           ),
                         ),
                         padding: const EdgeInsets.all(16),
@@ -1487,10 +1576,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.05),
+                          color: Colors.grey.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                           ),
                         ),
                         padding: const EdgeInsets.all(24),
@@ -1524,11 +1613,11 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.grey.withOpacity(0.2),
+                                  color: Colors.grey.withValues(alpha: 0.2),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
+                                    color: Colors.black.withValues(alpha: 0.03),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -1544,7 +1633,9 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                         Container(
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                            color: Colors.red.withOpacity(0.1),
+                                            color: Colors.red.withValues(
+                                              alpha: 0.1,
+                                            ),
                                             borderRadius: BorderRadius.circular(
                                               10,
                                             ),
@@ -1628,14 +1719,14 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                               vertical: 8,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: accentColor.withOpacity(
-                                                0.1,
+                                              color: accentColor.withValues(
+                                                alpha: 0.1,
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: accentColor.withOpacity(
-                                                  0.2,
+                                                color: accentColor.withValues(
+                                                  alpha: 0.2,
                                                 ),
                                               ),
                                             ),
@@ -1670,13 +1761,14 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                                     vertical: 8,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: Colors.orange
-                                                    .withOpacity(0.1),
+                                                color: Colors.orange.withValues(
+                                                  alpha: 0.1,
+                                                ),
                                                 borderRadius:
                                                     BorderRadius.circular(8),
                                                 border: Border.all(
                                                   color: Colors.orange
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                 ),
                                               ),
                                               child: Row(
@@ -1714,6 +1806,17 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                           ),
                         ),
                       ),
+
+                    // Vitals Section (Weight & Temperature trends)
+                    if (_treatments.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      _buildSectionTitle(
+                        'Vitals',
+                        Icons.monitor_heart_outlined,
+                      ),
+                      const SizedBox(height: 12),
+                      _VitalsCharts(treatments: _treatments),
+                    ],
 
                     const SizedBox(height: 20),
                   ],
@@ -1780,4 +1883,358 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       ],
     );
   }
+}
+
+class _VitalsCharts extends StatelessWidget {
+  final List<Treatment> treatments;
+  const _VitalsCharts({required this.treatments});
+
+  List<Treatment> _sorted(List<Treatment> list) {
+    final copy = [...list];
+    copy.sort((a, b) {
+      DateTime ad;
+      DateTime bd;
+      try {
+        ad = DateTime.parse(a.treatmentDate);
+      } catch (_) {
+        ad = DateTime.fromMillisecondsSinceEpoch(0);
+      }
+      try {
+        bd = DateTime.parse(b.treatmentDate);
+      } catch (_) {
+        bd = DateTime.fromMillisecondsSinceEpoch(0);
+      }
+      return ad.compareTo(bd);
+    });
+    return copy;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sorted = _sorted(treatments);
+    final weightPoints = <double>[];
+    final weightLabels = <String>[];
+    final tempPoints = <double>[];
+    final tempLabels = <String>[];
+
+    for (final t in sorted) {
+      // Weight
+      if (t.weight != null) {
+        weightPoints.add(t.weight!);
+        weightLabels.add(_shortDate(t.treatmentDate));
+      }
+      // Temperature
+      if (t.temperature != null) {
+        tempPoints.add(t.temperature!);
+        tempLabels.add(_shortDate(t.treatmentDate));
+      }
+    }
+
+    if (weightPoints.isEmpty && tempPoints.isEmpty) {
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          'No vitals recorded',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (weightPoints.isNotEmpty) ...[
+          _MiniChartCard(
+            title: 'Weight (kg)',
+            color: const Color(0xFF1E3A8A),
+            values: weightPoints,
+            labels: weightLabels,
+            valueSuffix: 'kg',
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (tempPoints.isNotEmpty)
+          _MiniChartCard(
+            title: 'Temperature (°C)',
+            color: Colors.orange.shade700,
+            values: tempPoints,
+            labels: tempLabels,
+            valueSuffix: '°C',
+          ),
+      ],
+    );
+  }
+
+  String _shortDate(String iso) {
+    try {
+      final d = DateTime.parse(iso);
+      return DateFormat('MMMd').format(d);
+    } catch (_) {
+      return iso;
+    }
+  }
+}
+
+class _MiniChartCard extends StatelessWidget {
+  final String title;
+  final Color color;
+  final List<double> values;
+  final List<String> labels;
+  final String valueSuffix;
+
+  const _MiniChartCard({
+    required this.title,
+    required this.color,
+    required this.values,
+    required this.labels,
+    required this.valueSuffix,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final minVal = values.reduce((a, b) => a < b ? a : b);
+    final maxVal = values.reduce((a, b) => a > b ? a : b);
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E3A8A),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                values.isNotEmpty
+                    ? '${values.last.toStringAsFixed(2)} $valueSuffix'
+                    : '-',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 160,
+            width: double.infinity,
+            child: _MiniLineChart(
+              values: values,
+              labels: labels,
+              lineColor: color,
+              minY: minVal,
+              maxY: maxVal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniLineChart extends StatelessWidget {
+  final List<double> values;
+  final List<String> labels;
+  final Color lineColor;
+  final double minY;
+  final double maxY;
+
+  const _MiniLineChart({
+    required this.values,
+    required this.labels,
+    required this.lineColor,
+    required this.minY,
+    required this.maxY,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ui.TextDirection dir = Directionality.of(context);
+    return CustomPaint(
+      painter: _LineChartPainter(
+        values: values,
+        labels: labels,
+        lineColor: lineColor,
+        minY: minY,
+        maxY: maxY,
+        textDirection: dir,
+      ),
+    );
+  }
+}
+
+class _LineChartPainter extends CustomPainter {
+  final List<double> values;
+  final List<String> labels;
+  final Color lineColor;
+  final double minY;
+  final double maxY;
+  final ui.TextDirection textDirection;
+
+  _LineChartPainter({
+    required this.values,
+    required this.labels,
+    required this.lineColor,
+    required this.minY,
+    required this.maxY,
+    required this.textDirection,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final padding = 28.0;
+    final chartRect = Rect.fromLTWH(
+      padding,
+      8,
+      size.width - padding - 8,
+      size.height - 8 - 28,
+    );
+
+    final bgPaint = Paint()
+      ..color = const Color(0xFFF7FAFC)
+      ..style = PaintingStyle.fill;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(chartRect, const Radius.circular(8)),
+      bgPaint,
+    );
+
+    // Grid lines
+    final gridPaint = Paint()
+      ..color = const Color(0xFFCBD5E1).withOpacity(0.4)
+      ..strokeWidth = 1;
+    const gridLines = 4;
+    for (int i = 0; i <= gridLines; i++) {
+      final dy = chartRect.top + chartRect.height * (i / gridLines);
+      canvas.drawLine(
+        Offset(chartRect.left, dy),
+        Offset(chartRect.right, dy),
+        gridPaint,
+      );
+    }
+
+    if (values.length < 1) return;
+
+    final range = (maxY - minY).abs() < 1e-6 ? 1.0 : (maxY - minY);
+    final dx = values.length == 1 ? 0.0 : chartRect.width / (values.length - 1);
+
+    final path = Path();
+    for (int i = 0; i < values.length; i++) {
+      final x = chartRect.left + dx * i;
+      final norm = (values[i] - minY) / range;
+      final y = chartRect.bottom - norm * chartRect.height;
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    final linePaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, linePaint);
+
+    // Points
+    final pointPaint = Paint()
+      ..color = lineColor
+      ..style = PaintingStyle.fill;
+    for (int i = 0; i < values.length; i++) {
+      final x =
+          chartRect.left + (values.length == 1 ? chartRect.width / 2 : dx * i);
+      final norm = (values[i] - minY) / range;
+      final y = chartRect.bottom - norm * chartRect.height;
+      canvas.drawCircle(Offset(x, y), 3.0, pointPaint);
+    }
+
+    // Y labels (min/max)
+    final textPainter = TextPainter(
+      textAlign: TextAlign.right,
+      textDirection: textDirection,
+    );
+    final minLabel = minY.toStringAsFixed(2);
+    final maxLabel = maxY.toStringAsFixed(2);
+    textPainter.text = TextSpan(
+      text: maxLabel,
+      style: const TextStyle(fontSize: 10, color: Colors.black54),
+    );
+    textPainter.layout(maxWidth: padding - 6);
+    textPainter.paint(
+      canvas,
+      Offset(0, chartRect.top - textPainter.height / 2),
+    );
+    textPainter.text = TextSpan(
+      text: minLabel,
+      style: const TextStyle(fontSize: 10, color: Colors.black54),
+    );
+    textPainter.layout(maxWidth: padding - 6);
+    textPainter.paint(
+      canvas,
+      Offset(0, chartRect.bottom - textPainter.height / 2),
+    );
+
+    // X labels (first/last)
+    if (labels.isNotEmpty) {
+      final first = labels.first;
+      final last = labels.last;
+      final tpFirst = TextPainter(
+        text: TextSpan(
+          text: first,
+          style: const TextStyle(fontSize: 10, color: Colors.black54),
+        ),
+        textDirection: textDirection,
+      )..layout(maxWidth: chartRect.width / 2);
+      tpFirst.paint(canvas, Offset(chartRect.left, chartRect.bottom + 4));
+
+      final tpLast = TextPainter(
+        text: TextSpan(
+          text: last,
+          style: const TextStyle(fontSize: 10, color: Colors.black54),
+        ),
+        textDirection: textDirection,
+      )..layout(maxWidth: chartRect.width / 2);
+      tpLast.paint(
+        canvas,
+        Offset(chartRect.right - tpLast.width, chartRect.bottom + 4),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

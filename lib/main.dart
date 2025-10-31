@@ -91,9 +91,11 @@ class VetMobApp extends StatelessWidget {
               }
               return Colors.transparent;
             }),
-            todayForegroundColor: WidgetStateProperty.all(const Color(0xFF1E3A8A)),
+            todayForegroundColor: WidgetStateProperty.all(
+              const Color(0xFF1E3A8A),
+            ),
             todayBackgroundColor: WidgetStateProperty.all(
-              const Color(0xFFC1E8F7).withOpacity(0.3),
+              const Color(0xFFC1E8F7).withValues(alpha: 0.3),
             ),
             todayBorder: const BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
             yearForegroundColor: WidgetStateProperty.resolveWith((states) {
@@ -132,10 +134,10 @@ class VetMobApp extends StatelessWidget {
             hourMinuteTextColor: const Color(0xFF1E3A8A),
             dayPeriodTextColor: const Color(0xFF1E3A8A),
             dialHandColor: const Color(0xFF1E3A8A),
-            dialBackgroundColor: const Color(0xFFC1E8F7).withOpacity(0.2),
+            dialBackgroundColor: const Color(0xFFC1E8F7).withValues(alpha: 0.2),
             dialTextColor: const Color(0xFF1E3A8A),
-            hourMinuteColor: const Color(0xFFC1E8F7).withOpacity(0.3),
-            dayPeriodColor: const Color(0xFFC1E8F7).withOpacity(0.3),
+            hourMinuteColor: const Color(0xFFC1E8F7).withValues(alpha: 0.3),
+            dayPeriodColor: const Color(0xFFC1E8F7).withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -179,8 +181,6 @@ class _BootstrapperState extends State<_Bootstrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

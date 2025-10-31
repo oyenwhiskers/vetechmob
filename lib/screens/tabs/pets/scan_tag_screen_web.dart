@@ -27,7 +27,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFFC1E8F7);
     const accentColor = Color(0xFF1E3A8A);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -55,7 +55,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -76,9 +76,9 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // Content Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -90,12 +90,9 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.5),
+                        color: primaryColor.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: primaryColor,
-                          width: 1,
-                        ),
+                        border: Border.all(color: primaryColor, width: 1),
                       ),
                       child: const Row(
                         children: [
@@ -118,9 +115,9 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Tag Code Input
                     Container(
                       padding: const EdgeInsets.all(20),
@@ -129,7 +126,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -167,14 +164,18 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                                 color: accentColor,
                               ),
                               filled: true,
-                              fillColor: primaryColor.withOpacity(0.2),
+                              fillColor: primaryColor.withValues(alpha: 0.2),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: primaryColor),
+                                borderSide: const BorderSide(
+                                  color: primaryColor,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: primaryColor),
+                                borderSide: const BorderSide(
+                                  color: primaryColor,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -196,8 +197,8 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
-                            validator: (v) => v == null || v.isEmpty 
-                                ? 'Tag code is required' 
+                            validator: (v) => v == null || v.isEmpty
+                                ? 'Tag code is required'
                                 : null,
                             autofocus: true,
                             textInputAction: TextInputAction.done,
@@ -206,9 +207,9 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Assign Button
                     SizedBox(
                       width: double.infinity,
@@ -239,14 +240,14 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Help Text
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.3),
+                        color: primaryColor.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -270,7 +271,7 @@ class _ScanTagScreenImplState extends State<ScanTagScreenImpl> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 40),
                   ],
                 ),

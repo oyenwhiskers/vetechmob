@@ -79,12 +79,21 @@ class _BookingsScreenState extends State<BookingsScreen> {
         color: bg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: bg.withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 3)),
+          BoxShadow(
+            color: bg.withValues(alpha: 0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: Text(
         status,
-        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.2),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.2,
+        ),
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
       ),
@@ -100,9 +109,13 @@ class _BookingsScreenState extends State<BookingsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _primary.withOpacity(0.7)),
+        border: Border.all(color: _primary.withValues(alpha: 0.7)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 6)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
         ],
       ),
       child: Row(
@@ -132,7 +145,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     Expanded(
                       child: Text(
                         '$dateText • $timeText',
-                        style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -147,7 +164,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     Expanded(
                       child: Text(
                         b.pet.name,
-                        style: const TextStyle(color: Colors.black54, fontSize: 13),
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 13,
+                        ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -182,7 +202,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: () => provider.fetch(status: _status, petId: _petId, date: _selectedDate),
+              onRefresh: () => provider.fetch(
+                status: _status,
+                petId: _petId,
+                date: _selectedDate,
+              ),
               child: ListView(
                 padding: const EdgeInsets.all(12),
                 children: [
@@ -197,19 +221,28 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             value: null,
                             child: Text('All Pets'),
                           ),
-                          ...pets.map((p) => DropdownMenuItem<int?>(
-                                value: p.id,
-                                child: Text(p.name),
-                              )),
+                          ...pets.map(
+                            (p) => DropdownMenuItem<int?>(
+                              value: p.id,
+                              child: Text(p.name),
+                            ),
+                          ),
                         ],
                         onChanged: (val) {
                           setState(() => _petId = val);
-                          provider.fetch(status: _status, petId: _petId, date: _selectedDate);
+                          provider.fetch(
+                            status: _status,
+                            petId: _petId,
+                            date: _selectedDate,
+                          );
                         },
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -219,57 +252,75 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   ),
                   const SizedBox(height: 8),
                   // Date filter (picker)
-                  Builder(builder: (context) {
-                    final display = _selectedDate == null
-                        ? 'All Dates'
-                        : DateFormat('EEE, MMM d').format(DateTime.parse(_selectedDate!));
-                    return InkWell(
-                      onTap: () async {
-                        final now = DateTime.now();
-                        final initial = _selectedDate != null
-                            ? DateTime.parse(_selectedDate!)
-                            : now;
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: initial,
-                          firstDate: DateTime(now.year - 1),
-                          lastDate: DateTime(now.year + 2),
-                        );
-                        if (picked != null) {
-                          final ymd = DateFormat('yyyy-MM-dd').format(picked);
-                          setState(() => _selectedDate = ymd);
-                          provider.fetch(status: _status, petId: _petId, date: _selectedDate);
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                  Builder(
+                    builder: (context) {
+                      final display = _selectedDate == null
+                          ? 'All Dates'
+                          : DateFormat(
+                              'EEE, MMM d',
+                            ).format(DateTime.parse(_selectedDate!));
+                      return InkWell(
+                        onTap: () async {
+                          final now = DateTime.now();
+                          final initial = _selectedDate != null
+                              ? DateTime.parse(_selectedDate!)
+                              : now;
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime(now.year - 1),
+                            lastDate: DateTime(now.year + 2),
+                          );
+                          if (picked != null) {
+                            final ymd = DateFormat('yyyy-MM-dd').format(picked);
+                            setState(() => _selectedDate = ymd);
+                            provider.fetch(
+                              status: _status,
+                              petId: _petId,
+                              date: _selectedDate,
+                            );
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            suffixIcon: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (_selectedDate != null)
+                                  IconButton(
+                                    tooltip: 'Clear date',
+                                    onPressed: () {
+                                      setState(() => _selectedDate = null);
+                                      provider.fetch(
+                                        status: _status,
+                                        petId: _petId,
+                                        date: _selectedDate,
+                                      );
+                                    },
+                                    icon: const Icon(Icons.clear),
+                                  ),
+                                const Icon(Icons.calendar_today),
+                                const SizedBox(width: 8),
+                              ],
+                            ),
                           ),
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_selectedDate != null)
-                                IconButton(
-                                  tooltip: 'Clear date',
-                                  onPressed: () {
-                                    setState(() => _selectedDate = null);
-                                    provider.fetch(status: _status, petId: _petId, date: _selectedDate);
-                                  },
-                                  icon: const Icon(Icons.clear),
-                                ),
-                              const Icon(Icons.calendar_today),
-                              const SizedBox(width: 8),
-                            ],
+                          child: Text(
+                            display,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
-                        child: Text(display, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
                   // Modern filter chips
                   SingleChildScrollView(
@@ -282,7 +333,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           onTap: () {
                             setState(() {
                               _status = null;
-                              provider.fetch(status: _status, petId: _petId, date: _selectedDate);
+                              provider.fetch(
+                                status: _status,
+                                petId: _petId,
+                                date: _selectedDate,
+                              );
                             });
                           },
                         ),
@@ -294,7 +349,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           onTap: () {
                             setState(() {
                               _status = 'pending';
-                              provider.fetch(status: _status, petId: _petId, date: _selectedDate);
+                              provider.fetch(
+                                status: _status,
+                                petId: _petId,
+                                date: _selectedDate,
+                              );
                             });
                           },
                         ),
@@ -306,7 +365,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           onTap: () {
                             setState(() {
                               _status = 'confirmed';
-                              provider.fetch(status: _status, petId: _petId, date: _selectedDate);
+                              provider.fetch(
+                                status: _status,
+                                petId: _petId,
+                                date: _selectedDate,
+                              );
                             });
                           },
                         ),
@@ -318,7 +381,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           onTap: () {
                             setState(() {
                               _status = 'completed';
-                              provider.fetch(status: _status, petId: _petId, date: _selectedDate);
+                              provider.fetch(
+                                status: _status,
+                                petId: _petId,
+                                date: _selectedDate,
+                              );
                             });
                           },
                         ),
@@ -330,7 +397,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           onTap: () {
                             setState(() {
                               _status = 'cancelled';
-                              provider.fetch(status: _status, petId: _petId, date: _selectedDate);
+                              provider.fetch(
+                                status: _status,
+                                petId: _petId,
+                                date: _selectedDate,
+                              );
                             });
                           },
                         ),
@@ -338,45 +409,68 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  ...provider.bookings.map((b) => GestureDetector(
-                        onTap: () async {
-                          final refreshNeeded = await Navigator.push<bool>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BookingDetailsScreen(booking: b),
-                            ),
+                  ...provider.bookings.map(
+                    (b) => GestureDetector(
+                      onTap: () async {
+                        final refreshNeeded = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookingDetailsScreen(booking: b),
+                          ),
+                        );
+                        if (refreshNeeded == true && mounted) {
+                          provider.fetch(
+                            status: _status,
+                            petId: _petId,
+                            date: _selectedDate,
                           );
-                          if (refreshNeeded == true && mounted) {
-                            provider.fetch(status: _status, petId: _petId, date: _selectedDate);
-                          }
-                        },
-                        onLongPress: b.status == 'pending'
-                            ? () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                    title: const Text('Cancel booking?'),
-                                    content: const Text('This action cannot be undone.'),
-                                    actions: [
-                                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-                                      FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes, cancel')),
-                                    ],
+                        }
+                      },
+                      onLongPress: b.status == 'pending'
+                          ? () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: const Text('Cancel booking?'),
+                                  content: const Text(
+                                    'This action cannot be undone.',
                                   ),
-                                );
-                                if (confirm == true) {
-                                  final err = await context.read<BookingProvider>().cancel(b.id);
-                                  if (err != null && mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
-                                  }
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('No'),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text('Yes, cancel'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              if (confirm == true) {
+                                final err = await context
+                                    .read<BookingProvider>()
+                                    .cancel(b.id);
+                                if (err != null && mounted) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(SnackBar(content: Text(err)));
                                 }
                               }
-                            : null,
-                        child: _bookingCard(b),
-                      )),
+                            }
+                          : null,
+                      child: _bookingCard(b),
+                    ),
+                  ),
                   // Empty state
                   if (provider.bookings.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 80,
+                        horizontal: 24,
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -384,7 +478,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             width: 100,
                             height: 100,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFC1E8F7).withOpacity(0.3),
+                              color: const Color(
+                                0xFFC1E8F7,
+                              ).withValues(alpha: 0.3),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -397,13 +493,18 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           Text(
                             () {
                               final pets = context.read<PetProvider>().pets;
-                              final hasPet = _petId != null && pets.any((p) => p.id == _petId);
+                              final hasPet =
+                                  _petId != null &&
+                                  pets.any((p) => p.id == _petId);
                               final name = hasPet
                                   ? pets.firstWhere((p) => p.id == _petId).name
                                   : null;
-                              if (_status == null && !hasPet) return 'No bookings yet';
-                              if (_status != null && !hasPet) return 'No ${_status} bookings';
-                              if (_status == null && hasPet) return 'No bookings for $name';
+                              if (_status == null && !hasPet)
+                                return 'No bookings yet';
+                              if (_status != null && !hasPet)
+                                return 'No ${_status} bookings';
+                              if (_status == null && hasPet)
+                                return 'No bookings for $name';
                               return 'No ${_status} bookings for $name';
                             }(),
                             style: const TextStyle(
@@ -427,19 +528,28 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           if (_status == null && _petId == null)
                             ElevatedButton.icon(
                               onPressed: () async {
-                                final created = await Navigator.of(context).push<bool>(
-                                  MaterialPageRoute(builder: (_) => const CreateBookingScreen()),
-                                );
+                                final created = await Navigator.of(context)
+                                    .push<bool>(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const CreateBookingScreen(),
+                                      ),
+                                    );
                                 if (created == true && mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Booking created')),
+                                    const SnackBar(
+                                      content: Text('Booking created'),
+                                    ),
                                   );
                                 }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF1E3A8A),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -459,7 +569,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
             MaterialPageRoute(builder: (_) => const CreateBookingScreen()),
           );
           if (created == true && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking created')));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Booking created')));
           }
         },
         label: const Text('New Booking'),
@@ -485,7 +597,7 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = color ?? const Color(0xFF1E3A8A);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -500,7 +612,7 @@ class _FilterChip extends StatelessWidget {
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: bgColor.withOpacity(0.25),
+                    color: bgColor.withValues(alpha: 0.25),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),

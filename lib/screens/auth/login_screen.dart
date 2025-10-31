@@ -27,10 +27,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final auth = context.read<AuthProvider>();
-    final err = await auth.login(_emailController.text.trim(), _passwordController.text);
-    
+    final err = await auth.login(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
+
     if (err == null) {
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(HomeShell.routeName);
@@ -106,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Title
                   const Text(
                     'Welcome Back',
@@ -119,14 +122,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Sign in to continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 40),
 
-                  
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -135,9 +134,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your email',
-                      prefixIcon: const Icon(Icons.email_outlined, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: primaryColor),
@@ -148,14 +150,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
-                    validator: (v) => v == null || v.isEmpty ? 'Email is required' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Email is required' : null,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Password Field
                   TextFormField(
                     controller: _passwordController,
@@ -164,9 +170,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelStyle: const TextStyle(color: accentColor),
                       floatingLabelStyle: const TextStyle(color: accentColor),
                       hintText: 'Enter your password',
-                      prefixIcon: const Icon(Icons.lock_outline, color: accentColor),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: accentColor,
+                      ),
                       filled: true,
-                      fillColor: primaryColor.withOpacity(0.2),
+                      fillColor: primaryColor.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: primaryColor),
@@ -177,21 +186,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: accentColor, width: 2),
+                        borderSide: const BorderSide(
+                          color: accentColor,
+                          width: 2,
+                        ),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          _obscure
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                           color: accentColor,
                         ),
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                     ),
                     obscureText: _obscure,
-                    validator: (v) => v == null || v.isEmpty ? 'Password is required' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Password is required' : null,
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Login Button
                   SizedBox(
                     width: double.infinity,
@@ -201,7 +216,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: accentColor,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: accentColor.withOpacity(0.6),
+                        disabledBackgroundColor: accentColor.withValues(
+                          alpha: 0.6,
+                        ),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -216,7 +233,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -240,20 +259,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Register Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Don't have an account? ",
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       TextButton(
-                        onPressed: () => Navigator.of(context).pushNamed(RegisterScreen.routeName),
+                        onPressed: () => Navigator.of(
+                          context,
+                        ).pushNamed(RegisterScreen.routeName),
                         style: TextButton.styleFrom(
                           foregroundColor: accentColor,
                           padding: EdgeInsets.zero,

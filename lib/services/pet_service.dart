@@ -92,6 +92,7 @@ class PetService {
     String? breed,
     int? age,
     String? gender,
+    String? status,
     String? color,
     double? weight,
     String? microchipId,
@@ -119,6 +120,13 @@ class PetService {
       final allowedGender = {'male', 'female'};
       if (allowedGender.contains(normGender)) {
         formData.fields.add(MapEntry('gender', normGender));
+      }
+    }
+    if (status != null) {
+      final normStatus = status.toLowerCase();
+      final allowedStatus = {'alive', 'deceased'};
+      if (allowedStatus.contains(normStatus)) {
+        formData.fields.add(MapEntry('status', normStatus));
       }
     }
     if (color != null) formData.fields.add(MapEntry('color', color));

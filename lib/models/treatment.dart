@@ -26,6 +26,8 @@ class Treatment {
   final String? dosage;
   final String? notes;
   final Collaborator? collaborator;
+  final double? weight;
+  final double? temperature;
 
   Treatment({
     required this.id,
@@ -37,6 +39,8 @@ class Treatment {
     this.dosage,
     this.notes,
     this.collaborator,
+    this.weight,
+    this.temperature,
   });
 
   factory Treatment.fromJson(Map<String, dynamic> json) => Treatment(
@@ -49,5 +53,17 @@ class Treatment {
         dosage: json['dosage'] as String?,
         notes: json['notes'] as String?,
         collaborator: json['collaborator'] != null ? Collaborator.fromJson(json['collaborator'] as Map<String, dynamic>) : null,
+        weight: _toDouble(json['weight']),
+        temperature: _toDouble(json['temperature']),
       );
+}
+
+double? _toDouble(dynamic v) {
+  if (v == null) return null;
+  if (v is num) return v.toDouble();
+  if (v is String) {
+    final parsed = double.tryParse(v);
+    return parsed;
+  }
+  return null;
 }
