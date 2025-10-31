@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import '../models/pet.dart';
 import '../models/treatment.dart';
@@ -92,6 +94,7 @@ class PetProvider extends ChangeNotifier {
           weight: p.weight,
           microchipId: p.microchipId,
           medicalNotes: p.medicalNotes,
+          petImage: p.petImage,
           tag: tag,
         );
         notifyListeners();
@@ -113,6 +116,10 @@ class PetProvider extends ChangeNotifier {
     double? weight,
     String? microchipId,
     String? medicalNotes,
+    File? petImageFile,
+    Uint8List? petImageBytes,
+    String? petImageName,
+    bool removePetImage = false,
   }) async {
     try {
       final updated = await _service.updatePet(
@@ -126,6 +133,10 @@ class PetProvider extends ChangeNotifier {
         weight: weight,
         microchipId: microchipId,
         medicalNotes: medicalNotes,
+        petImageFile: petImageFile,
+        petImageBytes: petImageBytes,
+        petImageName: petImageName,
+        removePetImage: removePetImage,
       );
       
       final idx = _pets.indexWhere((p) => p.id == petId);
@@ -160,6 +171,7 @@ class PetProvider extends ChangeNotifier {
           weight: p.weight,
           microchipId: p.microchipId,
           medicalNotes: p.medicalNotes,
+          petImage: p.petImage,
           tag: null, // Remove the tag
         );
         notifyListeners();

@@ -16,9 +16,16 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
   int? _petId;
   final _date = TextEditingController();
   final _time = TextEditingController();
-  final _service = TextEditingController();
+  String? _serviceType; // Changed from TextEditingController to String for dropdown
   final _notes = TextEditingController();
   bool _saving = false;
+
+  // Focus nodes to enable dynamic focused styling
+  final FocusNode _petFocus = FocusNode();
+  final FocusNode _dateFocus = FocusNode();
+  final FocusNode _timeFocus = FocusNode();
+  final FocusNode _serviceFocus = FocusNode();
+  final FocusNode _notesFocus = FocusNode();
 
   @override
   void initState() {
@@ -27,15 +34,66 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
     if (petsProv.pets.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => petsProv.fetch());
     }
+    // Rebuild when focus changes to update styles
+    for (final n in [_petFocus, _dateFocus, _timeFocus, _serviceFocus, _notesFocus]) {
+      n.addListener(() => setState(() {}));
+    }
   }
 
   @override
   void dispose() {
     _date.dispose();
     _time.dispose();
-    _service.dispose();
     _notes.dispose();
+    _petFocus.dispose();
+    _dateFocus.dispose();
+    _timeFocus.dispose();
+    _serviceFocus.dispose();
+    _notesFocus.dispose();
     super.dispose();
+  }
+
+  InputDecoration _focusedDecoration(
+    BuildContext context, {
+    required String label,
+    required FocusNode node,
+    IconData? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    final accent = Theme.of(context).colorScheme.secondary;
+    final baseBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
+    );
+    final focused = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: accent, width: 2),
+    );
+
+    return InputDecoration(
+      labelText: label,
+      // Make label more visible when floating
+  floatingLabelStyle: TextStyle(color: accent, fontWeight: FontWeight.w600),
+      // Fill only when focused to emulate the reference design
+      filled: true,
+  fillColor: node.hasFocus ? accent.withOpacity(0.08) : Colors.transparent,
+    prefixIcon: prefixIcon != null
+      ? Icon(prefixIcon, color: node.hasFocus ? accent : Colors.grey.shade600)
+          : null,
+      suffixIcon: suffixIcon,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: baseBorder,
+      enabledBorder: baseBorder,
+      focusedBorder: focused,
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 1.5),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2),
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -45,7 +103,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
           petId: _petId!,
           date: _date.text.trim(),
           time: _time.text.trim(),
-          serviceType: _service.text.trim(),
+          serviceType: _serviceType!,
           notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         );
     setState(() => _saving = false);
@@ -89,48 +147,128 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
       appBar: AppBar(title: const Text('Create Booking')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              DropdownButtonFormField<int>(
-                value: _petId,
-                items: pets.map((Pet p) => DropdownMenuItem<int>(value: p.id, child: Text(p.name))).toList(),
-                onChanged: (v) => setState(() => _petId = v),
-                decoration: const InputDecoration(labelText: 'Pet'),
-                validator: (v) => v == null ? 'Please select a pet' : null,
+        child: Theme(
+          // Increase contrast for focused fields just on this screen
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: InputDecorationTheme(
+              labelStyle: const TextStyle(color: Colors.black87),
+              floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              hintStyle: const TextStyle(color: Colors.black54),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _date,
-                decoration: InputDecoration(
-                  labelText: 'Date (YYYY-MM-DD)',
-                  suffixIcon: IconButton(icon: const Icon(Icons.calendar_today), onPressed: _pickDate),
-                ),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _time,
-                decoration: InputDecoration(
-                  labelText: 'Time (HH:MM)',
-                  suffixIcon: IconButton(icon: const Icon(Icons.schedule), onPressed: _pickTime),
-                ),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
               ),
-              const SizedBox(height: 12),
-              TextFormField(controller: _service, decoration: const InputDecoration(labelText: 'Service type'), validator: (v) => v == null || v.isEmpty ? 'Required' : null),
-              const SizedBox(height: 12),
-              TextFormField(controller: _notes, decoration: const InputDecoration(labelText: 'Notes'), maxLines: 3),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saving ? null : _save,
-                  child: _saving ? const CircularProgressIndicator() : const Text('Create'),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 1.5),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2),
+              ),
+            ),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                DropdownButtonFormField<int>(
+                  focusNode: _petFocus,
+                  value: _petId,
+                  items: pets
+                      .map((Pet p) => DropdownMenuItem<int>(value: p.id, child: Text(p.name)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _petId = v),
+                  decoration: _focusedDecoration(
+                    context,
+                    label: 'Pet',
+                    node: _petFocus,
+                    prefixIcon: Icons.pets,
+                  ),
+                  iconEnabledColor: Theme.of(context).colorScheme.secondary,
+                  validator: (v) => v == null ? 'Please select a pet' : null,
                 ),
-              )
-            ],
+                const SizedBox(height: 12),
+                TextFormField(
+                  focusNode: _dateFocus,
+                  controller: _date,
+                  decoration: _focusedDecoration(
+                    context,
+                    label: 'Date (YYYY-MM-DD)',
+                    node: _dateFocus,
+                    prefixIcon: Icons.calendar_today,
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.secondary),
+                      onPressed: _pickDate,
+                    ),
+                  ),
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  focusNode: _timeFocus,
+                  controller: _time,
+                  decoration: _focusedDecoration(
+                    context,
+                    label: 'Time (HH:MM)',
+                    node: _timeFocus,
+                    prefixIcon: Icons.schedule,
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.schedule, color: Theme.of(context).colorScheme.secondary),
+                      onPressed: _pickTime,
+                    ),
+                  ),
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  focusNode: _serviceFocus,
+                  value: _serviceType,
+                  items: const [
+                    DropdownMenuItem(value: 'Vaccine', child: Text('Vaccine')),
+                    DropdownMenuItem(value: 'Review', child: Text('Review')),
+                  ],
+                  onChanged: (v) => setState(() => _serviceType = v),
+                  decoration: _focusedDecoration(
+                    context,
+                    label: 'Service type',
+                    node: _serviceFocus,
+                    prefixIcon: Icons.medical_services,
+                  ),
+                  iconEnabledColor: Theme.of(context).colorScheme.secondary,
+                  validator: (v) => v == null ? 'Please select a service type' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  focusNode: _notesFocus,
+                  controller: _notes,
+                  decoration: _focusedDecoration(
+                    context,
+                    label: 'Notes',
+                    node: _notesFocus,
+                    prefixIcon: Icons.notes,
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saving ? null : _save,
+                    child: _saving ? const CircularProgressIndicator() : const Text('Create'),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

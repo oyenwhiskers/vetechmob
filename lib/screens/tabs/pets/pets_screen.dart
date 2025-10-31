@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../providers/pet_provider.dart';
 import '../../../models/pet.dart';
 import 'pet_form_screen.dart';
@@ -133,18 +134,36 @@ class _PetsScreenState extends State<PetsScreen> {
                   padding: const EdgeInsets.all(14.0),
                   child: Row(
                     children: [
-                      // Pet icon
+                      // Pet image or species icon
                       Container(
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFC1E8F7).withOpacity(0.5),
+                          color: (p.petImageUrl != null && p.petImageUrl!.isNotEmpty)
+                              ? null
+                              : const Color(0xFFC1E8F7).withOpacity(0.5),
                           borderRadius: BorderRadius.circular(14),
                         ),
+                        clipBehavior: Clip.antiAlias,
                         alignment: Alignment.center,
-                        child: isDogOrCat
-                            ? FaIcon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)
-                            : Icon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28),
+                        child: (p.petImageUrl != null && p.petImageUrl!.isNotEmpty)
+                            ? CachedNetworkImage(
+                                imageUrl: p.petImageUrl!,
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                errorWidget: (context, url, error) => isDogOrCat
+                                    ? FaIcon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)
+                                    : Icon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28),
+                              )
+                            : (isDogOrCat
+                                ? FaIcon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)
+                                : Icon(speciesIcon, color: const Color(0xFF1E3A8A), size: 28)),
                       ),
                       const SizedBox(width: 14),
                       // Pet info

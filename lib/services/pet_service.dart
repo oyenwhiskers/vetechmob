@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import '../models/pet.dart';
 import '../models/treatment.dart';
 import 'api_client.dart';
@@ -39,7 +42,7 @@ class PetService {
       if (gender != null) 'gender': gender,
       if (color != null) 'color': color,
       if (weight != null) 'weight': weight,
-      if (microchipId != null) 'microchip_id': microchipId,
+      if (microchipId != null) 'microchip_number': microchipId,
       if (medicalNotes != null) 'medical_notes': medicalNotes,
     };
     final res = await _api.post('/pets', data: payload);
@@ -72,19 +75,38 @@ class PetService {
     double? weight,
     String? microchipId,
     String? medicalNotes,
+    File? petImageFile,
+    Uint8List? petImageBytes,
+    String? petImageName,
+    bool removePetImage = false,
   }) async {
-    final payload = <String, dynamic>{};
-    if (name != null) payload['name'] = name;
-    if (species != null) payload['species'] = species;
-    if (breed != null) payload['breed'] = breed;
-    if (age != null) payload['age'] = age;
-    if (gender != null) payload['gender'] = gender;
-    if (color != null) payload['color'] = color;
-    if (weight != null) payload['weight'] = weight;
-    if (microchipId != null) payload['microchip_id'] = microchipId;
-    if (medicalNotes != null) payload['medical_notes'] = medicalNotes;
+    FormData formData = FormData();
+    
+    if (name != null) formData.fields.add(MapEntry('name', name));
+    if (species != null) formData.fields.add(MapEntry('species', species));
+    if (breed != null) formData.fields.add(MapEntry('breed', breed));
+    if (age != null) formData.fields.add(MapEntry('age', age.toString()));
+    if (gender != null) formData.fields.add(MapEntry('gender', gender));
+    if (color != null) formData.fields.add(MapEntry('color', color));
+    if (weight != null) formData.fields.add(MapEntry('weight', weight.toString()));
+    if (microchipId != null) formData.fields.add(MapEntry('microchip_number', microchipId));
+    if (medicalNotes != null) formData.fields.add(MapEntry('medical_notes', medicalNotes));
+    if (removePetImage) formData.fields.add(const MapEntry('remove_pet_image', 'true'));
+    
+    if (petImageBytes != null && petImageBytes.isNotEmpty) {
+      formData.files.add(MapEntry(
+        'pet_image',
+        MultipartFile.fromBytes(petImageBytes, filename: petImageName ?? 'pet.jpg'),
+      ));
+    } else if (petImageFile != null) {
+      String fileName = petImageFile.path.split('/').last;
+      formData.files.add(MapEntry(
+        'pet_image',
+        await MultipartFile.fromFile(petImageFile.path, filename: fileName),
+      ));
+    }
 
-    final res = await _api.put('/pets/$id', data: payload);
+    final res = await _api.put('/pets/$id', data: formData);
     final data = (res.data as Map<String, dynamic>)['data'] as Map<String, dynamic>;
     return Pet.fromJson(data);
   }

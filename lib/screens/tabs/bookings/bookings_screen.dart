@@ -108,15 +108,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Icon circle - vertically centered
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(color: _primary, shape: BoxShape.circle),
-            child: const Icon(Icons.event, color: _accent),
-          ),
-          const SizedBox(width: 12),
-          // Content
+          // Content (removed leading calendar icon to save space)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

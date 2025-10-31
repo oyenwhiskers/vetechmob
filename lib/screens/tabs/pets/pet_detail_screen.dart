@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../models/pet.dart';
 import '../../../models/treatment.dart';
 import '../../../providers/pet_provider.dart';
@@ -20,11 +23,96 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
   List<Treatment> _treatments = [];
   bool _loading = true;
   String? _error;
+  bool _uploadingImage = false;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  Future<void> _onChangePhoto(Pet p) async {
+    // Offer camera on mobile, gallery on all platforms
+    final picker = ImagePicker();
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Choose from gallery'),
+                onTap: () => Navigator.pop(ctx, 'gallery'),
+              ),
+              if (!kIsWeb)
+                ListTile(
+                  leading: const Icon(Icons.photo_camera_outlined),
+                  title: const Text('Take a photo'),
+                  onTap: () => Navigator.pop(ctx, 'camera'),
+                ),
+              if (p.petImageUrl != null)
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: const Text('Remove current photo'),
+                  onTap: () => Navigator.pop(ctx, 'remove'),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (!mounted || action == null) return;
+
+    if (action == 'remove') {
+      setState(() => _uploadingImage = true);
+      final err = await context.read<PetProvider>().updatePet(
+            p.id,
+            name: p.name,
+            species: p.species,
+            removePetImage: true, // handled via service field
+          );
+      setState(() => _uploadingImage = false);
+      if (err != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+      } else {
+        await _load();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Photo removed')));
+      }
+      return;
+    }
+
+    final source = action == 'camera' ? ImageSource.camera : ImageSource.gallery;
+    final picked = await picker.pickImage(source: source, imageQuality: 85, maxWidth: 1600);
+    if (picked == null) return;
+
+    setState(() => _uploadingImage = true);
+
+    // Prefer bytes upload to work on all platforms including Web
+    final bytes = await picked.readAsBytes();
+    final err = await context.read<PetProvider>().updatePet(
+          p.id,
+          name: p.name,
+          species: p.species,
+          petImageBytes: bytes,
+          petImageName: picked.name,
+        );
+    setState(() => _uploadingImage = false);
+
+    if (err != null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+      return;
+    }
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Photo updated')));
   }
 
   Future<void> _load() async {
@@ -1141,8 +1229,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 padding: const EdgeInsets.only(bottom: 30, top: 10),
                 child: Column(
                   children: [
-                    // Pet Avatar
-                    Container(
+                    // Pet Avatar (tap to change)
+                    GestureDetector(
+                      onTap: () => _onChangePhoto(p),
+                      child: Container(
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
@@ -1156,10 +1246,44 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: isDogOrCat
-                            ? FaIcon(speciesIcon, size: 50, color: accentColor)
-                            : Icon(speciesIcon, size: 50, color: accentColor),
+                      child: ClipOval(
+                        child: p.petImageUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: p.petImageUrl!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: Colors.white,
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: Colors.white,
+                                  child: Center(
+                                    child: isDogOrCat
+                                        ? FaIcon(speciesIcon, size: 50, color: accentColor)
+                                        : Icon(speciesIcon, size: 50, color: accentColor),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                color: Colors.white,
+                                child: Center(
+                                  child: isDogOrCat
+                                      ? FaIcon(speciesIcon, size: 50, color: accentColor)
+                                      : Icon(speciesIcon, size: 50, color: accentColor),
+                                ),
+                              ),
+                      ),
+                    )),
+                    if (_uploadingImage) const Padding(
+                      padding: EdgeInsets.only(top: 8.0),
+                      child: SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       ),
                     ),
                     const SizedBox(height: 16),

@@ -7,6 +7,7 @@ use App\Models\Pet;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class MobilePetController extends Controller
 {
@@ -48,6 +49,7 @@ class MobilePetController extends Controller
                         'weight' => $pet->weight,
                         'microchip_id' => $pet->microchip_id,
                         'medical_notes' => $pet->medical_notes,
+                        'pet_image' => $pet->pet_image,
                         'tag' => $firstTag ? [
                             'id' => $firstTag->id,
                             'tag_code' => $firstTag->tag_code,
@@ -96,7 +98,9 @@ class MobilePetController extends Controller
             'color' => 'nullable|string|max:255',
             'weight' => 'nullable|numeric|min:0',
             'microchip_id' => 'nullable|string|max:255',
+            'microchip_number' => 'nullable|string|max:255',
             'medical_notes' => 'nullable|string|max:1000',
+            'pet_image' => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -108,6 +112,8 @@ class MobilePetController extends Controller
         }
 
         try {
+            $microchip = $request->input('microchip_number', $request->input('microchip_id'));
+
             $pet = Pet::create([
                 'customer_id' => $user->customer_id,
                 'name' => $request->name,
@@ -117,9 +123,16 @@ class MobilePetController extends Controller
                 'gender' => $request->gender,
                 'color' => $request->color,
                 'weight' => $request->weight,
-                'microchip_id' => $request->microchip_id,
+                'microchip_id' => $microchip,
                 'medical_notes' => $request->medical_notes,
             ]);
+
+            if ($request->hasFile('pet_image')) {
+                $path = $request->file('pet_image')->store('pet_images', 'public');
+                $publicPath = '/storage/' . ltrim($path, '/');
+                $pet->pet_image = $publicPath;
+                $pet->save();
+            }
 
             return response()->json([
                 'success' => true,
@@ -135,6 +148,7 @@ class MobilePetController extends Controller
                     'weight' => $pet->weight,
                     'microchip_id' => $pet->microchip_id,
                     'medical_notes' => $pet->medical_notes,
+                    'pet_image' => $pet->pet_image,
                     'created_at' => $pet->created_at,
                 ]
             ], 201);
@@ -183,6 +197,7 @@ class MobilePetController extends Controller
                     'weight' => $pet->weight,
                     'microchip_id' => $pet->microchip_id,
                     'medical_notes' => $pet->medical_notes,
+                    'pet_image' => $pet->pet_image,
                     'tag' => $firstTag ? [
                         'id' => $firstTag->id,
                         'tag_code' => $firstTag->tag_code,
@@ -238,7 +253,10 @@ class MobilePetController extends Controller
             'color' => 'nullable|string|max:255',
             'weight' => 'nullable|numeric|min:0',
             'microchip_id' => 'nullable|string|max:255',
+            'microchip_number' => 'nullable|string|max:255',
             'medical_notes' => 'nullable|string|max:1000',
+            'pet_image' => 'nullable|image|max:5120',
+            'remove_pet_image' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -250,17 +268,40 @@ class MobilePetController extends Controller
         }
 
         try {
-            $pet->update($request->only([
-                'name',
-                'species',
-                'breed',
-                'age',
-                'gender',
-                'color',
-                'weight',
-                'microchip_id',
-                'medical_notes',
-            ]));
+            $updates = $request->only([
+                'name', 'species', 'breed', 'age', 'gender', 'color', 'weight', 'medical_notes'
+            ]);
+            $microchip = $request->input('microchip_number', $request->input('microchip_id'));
+            if (!is_null($microchip)) {
+                $updates['microchip_id'] = $microchip;
+            }
+            $pet->update($updates);
+
+            // Remove existing image if requested
+            if ($request->boolean('remove_pet_image')) {
+                if (!empty($pet->pet_image)) {
+                    $rel = ltrim(str_replace('/storage/', '', $pet->pet_image), '/');
+                    if ($rel) {
+                        try { Storage::disk('public')->delete($rel); } catch (\Throwable $t) {}
+                    }
+                }
+                $pet->pet_image = null;
+                $pet->save();
+            }
+
+            // Handle new image upload
+            if ($request->hasFile('pet_image')) {
+                if (!empty($pet->pet_image)) {
+                    $rel = ltrim(str_replace('/storage/', '', $pet->pet_image), '/');
+                    if ($rel) {
+                        try { Storage::disk('public')->delete($rel); } catch (\Throwable $t) {}
+                    }
+                }
+                $path = $request->file('pet_image')->store('pet_images', 'public');
+                $publicPath = '/storage/' . ltrim($path, '/');
+                $pet->pet_image = $publicPath;
+                $pet->save();
+            }
 
             return response()->json([
                 'success' => true,
@@ -276,6 +317,7 @@ class MobilePetController extends Controller
                     'weight' => $pet->weight,
                     'microchip_id' => $pet->microchip_id,
                     'medical_notes' => $pet->medical_notes,
+                    'pet_image' => $pet->pet_image,
                 ]
             ], 200);
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/auth_provider.dart';
 import 'bookings/create_booking_screen.dart';
@@ -232,6 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     name: p.name,
                     species: p.species,
                     breed: p.breed,
+                    imageUrl: p.petImageUrl,
                     hasTag: p.tag != null,
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (_) => PetDetailScreen(petId: p.id)));
@@ -467,13 +469,7 @@ class _BookingCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(color: const Color(0xFFC1E8F7), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.event_note_rounded, color: Color(0xFF1E3A8A), size: 20),
-              ),
-              const SizedBox(width: 12),
+              // Removed leading calendar icon to save space
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,9 +555,10 @@ class _PetCardVertical extends StatelessWidget {
   final String name;
   final String species;
   final String? breed;
+  final String? imageUrl;
   final bool hasTag;
   final VoidCallback onTap;
-  const _PetCardVertical({required this.name, required this.species, this.breed, required this.hasTag, required this.onTap});
+  const _PetCardVertical({required this.name, required this.species, this.breed, this.imageUrl, required this.hasTag, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -593,11 +590,33 @@ class _PetCardVertical extends StatelessWidget {
               Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(color: cs.tertiary.withOpacity(.12), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                  color: (imageUrl != null && imageUrl!.isNotEmpty) ? null : cs.tertiary.withOpacity(.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                clipBehavior: Clip.antiAlias,
                 alignment: Alignment.center,
-                child: isDogOrCat
-                    ? FaIcon(speciesIcon, color: cs.tertiary, size: 22)
-                    : Icon(speciesIcon, color: cs.tertiary, size: 22),
+                child: (imageUrl != null && imageUrl!.isNotEmpty)
+                    ? CachedNetworkImage(
+                        imageUrl: imageUrl!,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.8,
+                            valueColor: AlwaysStoppedAnimation(cs.tertiary.withOpacity(.7)),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => isDogOrCat
+                            ? FaIcon(speciesIcon, color: cs.tertiary, size: 22)
+                            : Icon(speciesIcon, color: cs.tertiary, size: 22),
+                      )
+                    : (isDogOrCat
+                        ? FaIcon(speciesIcon, color: cs.tertiary, size: 22)
+                        : Icon(speciesIcon, color: cs.tertiary, size: 22)),
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -27,6 +27,7 @@ class Pet {
   final double? weight;
   final String? microchipId;
   final String? medicalNotes;
+  final String? petImage;
   final PetTag? tag;
 
   Pet({
@@ -40,8 +41,30 @@ class Pet {
     this.weight,
     this.microchipId,
     this.medicalNotes,
+    this.petImage,
     this.tag,
   });
+
+  // Helper to get full image URL
+  String? get petImageUrl {
+    if (petImage == null || petImage!.isEmpty) return null;
+    
+    // If already a full URL, return as is
+    if (petImage!.startsWith('http://') || petImage!.startsWith('https://')) {
+      return petImage;
+    }
+    
+    // Convert storage path to full URL
+    // Remove leading /storage/ if present and construct full URL
+    String path = petImage!;
+    if (path.startsWith('/storage/')) {
+      path = path.substring(9); // Remove '/storage/'
+    }
+    
+    // Base URL without /api/v1
+    const String baseUrl = 'http://inovetsmart.com';
+    return '$baseUrl/storage/$path';
+  }
 
   factory Pet.fromJson(Map<String, dynamic> json) => Pet(
         id: json['id'] as int,
@@ -52,8 +75,9 @@ class Pet {
         gender: json['gender'] as String?,
         color: json['color'] as String?,
         weight: json['weight'] is num ? (json['weight'] as num).toDouble() : double.tryParse('${json['weight']}'),
-        microchipId: json['microchip_id'] as String?,
+        microchipId: json['microchip_number'] as String?,
         medicalNotes: json['medical_notes'] as String?,
+        petImage: json['pet_image'] as String?,
         tag: json['tag'] != null ? PetTag.fromJson(json['tag'] as Map<String, dynamic>) : null,
       );
 }
