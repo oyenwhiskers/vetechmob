@@ -4,14 +4,19 @@ class AppUser {
   final String email;
   final String role;
 
-  AppUser({required this.id, required this.name, required this.email, required this.role});
+  AppUser({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+  });
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
-        id: json['id'] as int,
-        name: json['name'] as String? ?? '',
-        email: json['email'] as String? ?? '',
-        role: json['role'] as String? ?? 'customer',
-      );
+    id: json['id'] as int,
+    name: json['name'] as String? ?? '',
+    email: json['email'] as String? ?? '',
+    role: json['role'] as String? ?? 'customer',
+  );
 }
 
 class CustomerProfile {
@@ -21,6 +26,7 @@ class CustomerProfile {
   final String? phone;
   final String? icNumber;
   final String? address;
+  final String? profileImage;
 
   CustomerProfile({
     required this.id,
@@ -29,14 +35,17 @@ class CustomerProfile {
     this.phone,
     this.icNumber,
     this.address,
+    this.profileImage,
   });
 
-  factory CustomerProfile.fromJson(Map<String, dynamic> json) => CustomerProfile(
+  factory CustomerProfile.fromJson(Map<String, dynamic> json) =>
+      CustomerProfile(
         id: json['id'] as int,
         name: json['name'] as String? ?? '',
         email: json['email'] as String? ?? '',
         phone: json['phone'] as String?,
         icNumber: json['ic_number'] as String?,
         address: json['address'] as String?,
+        profileImage: json['profile_image'] as String?,
       );
 }

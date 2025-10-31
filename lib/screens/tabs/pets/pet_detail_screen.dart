@@ -37,7 +37,9 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -71,25 +73,33 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     if (action == 'remove') {
       setState(() => _uploadingImage = true);
       final err = await context.read<PetProvider>().updatePet(
-            p.id,
-            name: p.name,
-            species: p.species,
-            removePetImage: true, // handled via service field
-          );
+        p.id,
+        removePetImage: true, // handled via service field
+      );
       setState(() => _uploadingImage = false);
       if (err != null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(err)));
       } else {
         await _load();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Photo removed')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Photo removed')));
       }
       return;
     }
 
-    final source = action == 'camera' ? ImageSource.camera : ImageSource.gallery;
-    final picked = await picker.pickImage(source: source, imageQuality: 85, maxWidth: 1600);
+    final source = action == 'camera'
+        ? ImageSource.camera
+        : ImageSource.gallery;
+    final picked = await picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxWidth: 1600,
+    );
     if (picked == null) return;
 
     setState(() => _uploadingImage = true);
@@ -97,12 +107,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     // Prefer bytes upload to work on all platforms including Web
     final bytes = await picked.readAsBytes();
     final err = await context.read<PetProvider>().updatePet(
-          p.id,
-          name: p.name,
-          species: p.species,
-          petImageBytes: bytes,
-          petImageName: picked.name,
-        );
+      p.id,
+      petImageBytes: bytes,
+      petImageName: picked.name,
+    );
     setState(() => _uploadingImage = false);
 
     if (err != null) {
@@ -112,7 +120,9 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     }
     await _load();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Photo updated')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Photo updated')));
   }
 
   Future<void> _load() async {
@@ -155,7 +165,8 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       return 'DVS Sandakan';
     } else if (treatment.treatmentLocation.toLowerCase() == 'collaborator') {
       // Show clinic name if available, otherwise show 'Private Clinic'
-      if (treatment.collaborator?.clinicName != null && treatment.collaborator!.clinicName!.isNotEmpty) {
+      if (treatment.collaborator?.clinicName != null &&
+          treatment.collaborator!.clinicName!.isNotEmpty) {
         return treatment.collaborator!.clinicName!;
       }
       return 'Private Clinic';
@@ -167,9 +178,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           constraints: const BoxConstraints(maxWidth: 500),
           child: SingleChildScrollView(
@@ -229,16 +238,17 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   const SizedBox(height: 24),
                   const Divider(),
                   const SizedBox(height: 20),
-                  
+
                   // Diagnosis
                   _buildDetailRow(
                     'Diagnosis',
                     treatment.diagnosis,
                     Icons.medical_information_outlined,
                   ),
-                  
+
                   // Disease
-                  if (treatment.disease != null && treatment.disease!.isNotEmpty) ...[
+                  if (treatment.disease != null &&
+                      treatment.disease!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildDetailRow(
                       'Disease',
@@ -246,7 +256,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Icons.coronavirus_outlined,
                     ),
                   ],
-                  
+
                   // Location
                   if (treatment.treatmentLocation.isNotEmpty) ...[
                     const SizedBox(height: 16),
@@ -256,9 +266,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Icons.location_on_outlined,
                     ),
                   ],
-                  
+
                   // Medicine
-                  if (treatment.medicinePrescribed != null && treatment.medicinePrescribed!.isNotEmpty) ...[
+                  if (treatment.medicinePrescribed != null &&
+                      treatment.medicinePrescribed!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildDetailRow(
                       'Medicine Prescribed',
@@ -266,9 +277,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Icons.medication_outlined,
                     ),
                   ],
-                  
+
                   // Dosage
-                  if (treatment.dosage != null && treatment.dosage!.isNotEmpty) ...[
+                  if (treatment.dosage != null &&
+                      treatment.dosage!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildDetailRow(
                       'Dosage',
@@ -276,9 +288,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Icons.medical_services_outlined,
                     ),
                   ],
-                  
+
                   // Notes
-                  if (treatment.notes != null && treatment.notes!.isNotEmpty) ...[
+                  if (treatment.notes != null &&
+                      treatment.notes!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildDetailRow(
                       'Notes',
@@ -286,7 +299,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       Icons.note_outlined,
                     ),
                   ],
-                  
+
                   // Collaborator
                   if (treatment.collaborator != null) ...[
                     const SizedBox(height: 20),
@@ -328,7 +341,8 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                   color: Color(0xFF1E3A8A),
                                 ),
                               ),
-                              if (treatment.collaborator!.clinicName != null) ...[
+                              if (treatment.collaborator!.clinicName !=
+                                  null) ...[
                                 const SizedBox(height: 2),
                                 Text(
                                   treatment.collaborator!.clinicName!,
@@ -344,7 +358,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       ],
                     ),
                   ],
-                  
+
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
@@ -385,11 +399,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
             color: Colors.grey.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: const Color(0xFF1E3A8A),
-          ),
+          child: Icon(icon, size: 18, color: const Color(0xFF1E3A8A)),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -424,9 +434,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     await showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
@@ -456,7 +464,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               // QR Code
               Container(
                 padding: const EdgeInsets.all(16),
@@ -473,10 +481,13 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Tag Code
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -500,7 +511,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Pet Info
               Text(
                 pet.name,
@@ -511,16 +522,13 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ),
               ),
               Text(
-                pet.breed != null && pet.breed!.isNotEmpty 
+                pet.breed != null && pet.breed!.isNotEmpty
                     ? '${pet.species} • ${pet.breed}'
                     : pet.species,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               const SizedBox(height: 24),
-              
+
               // Release Tag Button
               SizedBox(
                 width: double.infinity,
@@ -534,7 +542,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: Colors.red.withOpacity(0.5), width: 1.5),
+                    side: BorderSide(
+                      color: Colors.red.withOpacity(0.5),
+                      width: 1.5,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -553,9 +564,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         elevation: 0,
         backgroundColor: Colors.transparent,
         child: Container(
@@ -589,7 +598,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Title
               const Text(
                 'Release Tag',
@@ -600,7 +609,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Content
               Text(
                 'Are you sure you want to release tag ${pet.tag!.tagCode} from ${pet.name}?',
@@ -612,7 +621,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Buttons
               Row(
                 children: [
@@ -621,7 +630,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       onPressed: () => Navigator.of(context).pop(false),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
+                        side: const BorderSide(
+                          color: Color(0xFF1E3A8A),
+                          width: 1.5,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -675,10 +687,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     try {
       final provider = Provider.of<PetProvider>(context, listen: false);
       await provider.releaseTag(pet.id);
-      
+
       // Reload pet data to update the UI
       await _load();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -703,10 +715,14 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     final nameController = TextEditingController(text: pet.name);
     final speciesController = TextEditingController(text: pet.species);
     final breedController = TextEditingController(text: pet.breed ?? '');
-    final ageController = TextEditingController(text: pet.age?.toString() ?? '');
+    final ageController = TextEditingController(
+      text: pet.age?.toString() ?? '',
+    );
     final genderController = TextEditingController(text: pet.gender ?? '');
     final colorController = TextEditingController(text: pet.color ?? '');
-    final weightController = TextEditingController(text: pet.weight?.toString() ?? '');
+    final weightController = TextEditingController(
+      text: pet.weight?.toString() ?? '',
+    );
     final formKey = GlobalKey<FormState>();
 
     try {
@@ -774,7 +790,8 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                            validator: (v) =>
+                                v == null || v.isEmpty ? 'Required' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -786,7 +803,8 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                            validator: (v) =>
+                                v == null || v.isEmpty ? 'Required' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -836,7 +854,9 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: weightController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                             decoration: InputDecoration(
                               labelText: 'Weight (kg)',
                               prefixIcon: const Icon(Icons.monitor_weight),
@@ -860,7 +880,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                           onPressed: () => Navigator.pop(context, false),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                            side: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -1003,9 +1026,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
@@ -1055,7 +1076,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       onPressed: () => Navigator.of(context).pop(false),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
+                        side: const BorderSide(
+                          color: Color(0xFF1E3A8A),
+                          width: 1.5,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -1109,7 +1133,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     try {
       final provider = Provider.of<PetProvider>(context, listen: false);
       final error = await provider.deletePet(pet.id);
-      
+
       if (error == null) {
         if (mounted) {
           Navigator.of(context).pop(); // Go back to pets list
@@ -1146,14 +1170,14 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFFC1E8F7);
     const accentColor = Color(0xFF1E3A8A);
-    
+
     if (_loading) {
       return Scaffold(
         appBar: AppBar(),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
-    
+
     if (_error != null) {
       return Scaffold(
         appBar: AppBar(),
@@ -1165,16 +1189,13 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
               const SizedBox(height: 16),
               Text('Error: $_error'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _load,
-                child: const Text('Retry'),
-              ),
+              ElevatedButton(onPressed: _load, child: const Text('Retry')),
             ],
           ),
         ),
       );
     }
-    
+
     final p = _pet;
     if (p == null) {
       return Scaffold(
@@ -1188,8 +1209,8 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
     final speciesIcon = speciesLower == 'dog'
         ? FontAwesomeIcons.dog
         : speciesLower == 'cat'
-            ? FontAwesomeIcons.cat
-            : Icons.cruelty_free;
+        ? FontAwesomeIcons.cat
+        : Icons.cruelty_free;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -1233,59 +1254,81 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                     GestureDetector(
                       onTap: () => _onChangePhoto(p),
                       child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: accentColor.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: p.petImageUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: p.petImageUrl!,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  color: Colors.white,
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: accentColor.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: p.petImageUrl != null
+                              ? CachedNetworkImage(
+                                  imageUrl: p.petImageUrl!,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    color: Colors.white,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
                                   ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                        color: Colors.white,
+                                        child: Center(
+                                          child: isDogOrCat
+                                              ? FaIcon(
+                                                  speciesIcon,
+                                                  size: 50,
+                                                  color: accentColor,
+                                                )
+                                              : Icon(
+                                                  speciesIcon,
+                                                  size: 50,
+                                                  color: accentColor,
+                                                ),
+                                        ),
+                                      ),
+                                )
+                              : Container(
                                   color: Colors.white,
                                   child: Center(
                                     child: isDogOrCat
-                                        ? FaIcon(speciesIcon, size: 50, color: accentColor)
-                                        : Icon(speciesIcon, size: 50, color: accentColor),
+                                        ? FaIcon(
+                                            speciesIcon,
+                                            size: 50,
+                                            color: accentColor,
+                                          )
+                                        : Icon(
+                                            speciesIcon,
+                                            size: 50,
+                                            color: accentColor,
+                                          ),
                                   ),
                                 ),
-                              )
-                            : Container(
-                                color: Colors.white,
-                                child: Center(
-                                  child: isDogOrCat
-                                      ? FaIcon(speciesIcon, size: 50, color: accentColor)
-                                      : Icon(speciesIcon, size: 50, color: accentColor),
-                                ),
-                              ),
-                      ),
-                    )),
-                    if (_uploadingImage) const Padding(
-                      padding: EdgeInsets.only(top: 8.0),
-                      child: SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        ),
                       ),
                     ),
+                    if (_uploadingImage)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     Text(
                       p.name,
@@ -1297,7 +1340,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      p.breed != null && p.breed!.isNotEmpty 
+                      p.breed != null && p.breed!.isNotEmpty
                           ? '${_capitalize(p.species)} • ${p.breed}'
                           : _capitalize(p.species),
                       style: TextStyle(
@@ -1310,16 +1353,25 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                       InkWell(
                         onTap: () => _showQRCodeDialog(p),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.green.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.green.withOpacity(0.3)),
+                            border: Border.all(
+                              color: Colors.green.withOpacity(0.3),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.qr_code_2, color: Colors.green, size: 18),
+                              const Icon(
+                                Icons.qr_code_2,
+                                color: Colors.green,
+                                size: 18,
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 'Tag ${p.tag!.tagCode}',
@@ -1337,7 +1389,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   ],
                 ),
               ),
-              
+
               // Pet Information Cards
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -1396,42 +1448,50 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                         ],
                       ),
                     ),
-                    
+
                     // Medical Notes (if any)
-                    if (p.medicalNotes != null && p.medicalNotes!.isNotEmpty) ...[
+                    if (p.medicalNotes != null &&
+                        p.medicalNotes!.isNotEmpty) ...[
                       const SizedBox(height: 24),
-                      _buildSectionTitle('Medical Notes', Icons.medical_information_outlined),
+                      _buildSectionTitle(
+                        'Medical Notes',
+                        Icons.medical_information_outlined,
+                      ),
                       const SizedBox(height: 12),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.orange.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                          border: Border.all(
+                            color: Colors.orange.withOpacity(0.3),
+                          ),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Text(
                           p.medicalNotes!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            height: 1.5,
-                          ),
+                          style: const TextStyle(fontSize: 14, height: 1.5),
                         ),
                       ),
                     ],
-                    
+
                     // Medical Treatments Section
                     const SizedBox(height: 24),
-                    _buildSectionTitle('Medical Treatments', Icons.local_hospital_outlined),
+                    _buildSectionTitle(
+                      'Medical Treatments',
+                      Icons.local_hospital_outlined,
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     if (_treatments.isEmpty)
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                          border: Border.all(
+                            color: Colors.grey.withOpacity(0.2),
+                          ),
                         ),
                         padding: const EdgeInsets.all(24),
                         child: Column(
@@ -1453,165 +1513,145 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                         ),
                       )
                     else
-                      ..._treatments.map((t) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: InkWell(
-                          onTap: () => _showTreatmentDetails(t),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                      ..._treatments.map(
+                        (t) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: InkWell(
+                            onTap: () => _showTreatmentDetails(t),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2),
                                 ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: const Icon(
-                                          Icons.local_hospital,
-                                          color: Colors.red,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              t.diagnosis,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 16,
-                                                color: Color(0xFF1E3A8A),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.calendar_today,
-                                                  size: 14,
-                                                  color: Colors.grey[600],
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  _formatDate(t.treatmentDate),
-                                                  style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
                                   ),
-                                  if (t.treatmentLocation.isNotEmpty) ...[
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.location_on_outlined,
-                                          size: 16,
-                                          color: Colors.grey[600],
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            _getLocationDisplay(t),
-                                            style: TextStyle(
-                                              color: Colors.grey[700],
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                  if (t.collaborator != null) ...[
-                                    const SizedBox(height: 10),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Row(
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
+                                          padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                            color: accentColor.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                              color: accentColor.withOpacity(0.2),
+                                            color: Colors.red.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
                                             ),
                                           ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
+                                          child: const Icon(
+                                            Icons.local_hospital,
+                                            color: Colors.red,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Icon(
-                                                Icons.person_outline,
-                                                size: 16,
-                                                color: accentColor,
-                                              ),
-                                              const SizedBox(width: 6),
                                               Text(
-                                                'Dr ${t.collaborator!.name}',
-                                                style: TextStyle(
-                                                  color: accentColor,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
+                                                t.diagnosis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 16,
+                                                  color: Color(0xFF1E3A8A),
                                                 ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.calendar_today,
+                                                    size: 14,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    _formatDate(
+                                                      t.treatmentDate,
+                                                    ),
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
                                         ),
-                                        if (t.treatmentLocation.toLowerCase() == 'collaborator') ...[
-                                          const SizedBox(width: 8),
+                                      ],
+                                    ),
+                                    if (t.treatmentLocation.isNotEmpty) ...[
+                                      const SizedBox(height: 12),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.location_on_outlined,
+                                            size: 16,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              _getLocationDisplay(t),
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    if (t.collaborator != null) ...[
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        children: [
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 12,
                                               vertical: 8,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Colors.orange.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: accentColor.withOpacity(
+                                                0.1,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: Colors.orange.withOpacity(0.3),
+                                                color: accentColor.withOpacity(
+                                                  0.2,
+                                                ),
                                               ),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(
-                                                  Icons.business_outlined,
+                                                  Icons.person_outline,
                                                   size: 16,
-                                                  color: Colors.orange.shade700,
+                                                  color: accentColor,
                                                 ),
                                                 const SizedBox(width: 6),
                                                 Text(
-                                                  'Collaborator',
+                                                  'Dr ${t.collaborator!.name}',
                                                   style: TextStyle(
-                                                    color: Colors.orange.shade700,
+                                                    color: accentColor,
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -1619,17 +1659,62 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                                               ],
                                             ),
                                           ),
+                                          if (t.treatmentLocation
+                                                  .toLowerCase() ==
+                                              'collaborator') ...[
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.orange
+                                                      .withOpacity(0.3),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.business_outlined,
+                                                    size: 16,
+                                                    color:
+                                                        Colors.orange.shade700,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Collaborator',
+                                                    style: TextStyle(
+                                                      color: Colors
+                                                          .orange
+                                                          .shade700,
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ],
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      )),
-                    
+                      ),
+
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -1640,12 +1725,12 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       ),
     );
   }
-  
+
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
-  
+
   Widget _buildSectionTitle(String title, IconData icon) {
     const accentColor = Color(0xFF1E3A8A);
     return Row(
@@ -1663,7 +1748,7 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
       ],
     );
   }
-  
+
   Widget _buildInfoRow(IconData icon, String label, String value) {
     const accentColor = Color(0xFF1E3A8A);
     return Row(

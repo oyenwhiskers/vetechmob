@@ -23,7 +23,7 @@ class PetProvider extends ChangeNotifier {
       _pets = await _service.getPets();
     } catch (e) {
       _error = _extractErrorMessage(e);
-      print('❌ PetProvider fetch error: $_error');
+      debugPrint('❌ PetProvider fetch error: $_error');
     } finally {
       _loading = false;
       notifyListeners();
@@ -33,7 +33,7 @@ class PetProvider extends ChangeNotifier {
   String _extractErrorMessage(Object e) {
     try {
       final errorStr = e.toString();
-      print("Error occurred: $errorStr");
+      debugPrint("Error occurred: $errorStr");
       if (errorStr.contains('500')) {
         return 'Server error (500). Please check server logs.\nThe backend needs to be fixed.';
       }
@@ -107,8 +107,8 @@ class PetProvider extends ChangeNotifier {
 
   Future<String?> updatePet(
     int petId, {
-    required String name,
-    required String species,
+    String? name,
+    String? species,
     String? breed,
     int? age,
     String? gender,

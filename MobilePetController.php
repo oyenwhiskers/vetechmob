@@ -8,6 +8,7 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class MobilePetController extends Controller
 {
@@ -32,24 +33,33 @@ class MobilePetController extends Controller
             $pets = Pet::where('customer_id', $user->customer_id)
                        ->with(['tag'])
                        ->get();
+            
+            // Check for latest weight per pet when building response
 
             return response()->json([
                 'success' => true,
                 'data' => $pets->map(function ($pet) {
                     $firstTag = $pet->tag;
+                    $petImage = $pet->pet_image
+                        ? (str_starts_with($pet->pet_image, 'http') || str_starts_with($pet->pet_image, '/storage/')
+                            ? $pet->pet_image
+                            : Storage::url(ltrim(str_replace('/storage/', '', parse_url($pet->pet_image, PHP_URL_PATH) ?? $pet->pet_image), '/')))
+                        : null;
                     
                     return [
                         'id' => $pet->id,
                         'name' => $pet->name,
+                        'pet_image' => $petImage,
                         'species' => $pet->species,
                         'breed' => $pet->breed,
                         'age' => $pet->age,
                         'gender' => $pet->gender,
                         'color' => $pet->color,
-                        'weight' => $pet->weight,
-                        'microchip_id' => $pet->microchip_id,
+                        'weight' => optional(
+                            $pet->treatments()->orderBy('treatment_date', 'desc')->first()
+                        )->weight ?? $pet->weight,
+                        'microchip_number' => $pet->microchip_number,
                         'medical_notes' => $pet->medical_notes,
-                        'pet_image' => $pet->pet_image,
                         'tag' => $firstTag ? [
                             'id' => $firstTag->id,
                             'tag_code' => $firstTag->tag_code,
@@ -62,8 +72,8 @@ class MobilePetController extends Controller
             ], 200);
             
         } catch (\Exception $e) {
-            \Log::error('Pet index error: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            Log::error('Pet index error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
@@ -97,10 +107,9 @@ class MobilePetController extends Controller
             'gender' => 'nullable|in:male,female',
             'color' => 'nullable|string|max:255',
             'weight' => 'nullable|numeric|min:0',
-            'microchip_id' => 'nullable|string|max:255',
             'microchip_number' => 'nullable|string|max:255',
             'medical_notes' => 'nullable|string|max:1000',
-            'pet_image' => 'nullable|image|max:5120',
+            'pet_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -112,7 +121,10 @@ class MobilePetController extends Controller
         }
 
         try {
-            $microchip = $request->input('microchip_number', $request->input('microchip_id'));
+            if ($request->hasFile('pet_image')) {
+                $imagePath = $request->file('pet_image')->store('pet_images', 'public');
+                $petImage = $imagePath; // store path only
+            }
 
             $pet = Pet::create([
                 'customer_id' => $user->customer_id,
@@ -123,16 +135,10 @@ class MobilePetController extends Controller
                 'gender' => $request->gender,
                 'color' => $request->color,
                 'weight' => $request->weight,
-                'microchip_id' => $microchip,
+                'microchip_number' => $request->microchip_number,
                 'medical_notes' => $request->medical_notes,
+                'pet_image' => $petImage ?? null,
             ]);
-
-            if ($request->hasFile('pet_image')) {
-                $path = $request->file('pet_image')->store('pet_images', 'public');
-                $publicPath = '/storage/' . ltrim($path, '/');
-                $pet->pet_image = $publicPath;
-                $pet->save();
-            }
 
             return response()->json([
                 'success' => true,
@@ -146,9 +152,13 @@ class MobilePetController extends Controller
                     'gender' => $pet->gender,
                     'color' => $pet->color,
                     'weight' => $pet->weight,
-                    'microchip_id' => $pet->microchip_id,
+                    'microchip_number' => $pet->microchip_number,
                     'medical_notes' => $pet->medical_notes,
-                    'pet_image' => $pet->pet_image,
+                    'pet_image' => $pet->pet_image
+                        ? (str_starts_with($pet->pet_image, 'http') || str_starts_with($pet->pet_image, '/storage/')
+                            ? $pet->pet_image
+                            : Storage::url(ltrim(str_replace('/storage/', '', parse_url($pet->pet_image, PHP_URL_PATH) ?? $pet->pet_image), '/')))
+                        : null,
                     'created_at' => $pet->created_at,
                 ]
             ], 201);
@@ -189,15 +199,19 @@ class MobilePetController extends Controller
                 'data' => [
                     'id' => $pet->id,
                     'name' => $pet->name,
+                    'pet_image' => $pet->pet_image
+                        ? (str_starts_with($pet->pet_image, 'http') || str_starts_with($pet->pet_image, '/storage/')
+                            ? $pet->pet_image
+                            : Storage::url(ltrim(str_replace('/storage/', '', parse_url($pet->pet_image, PHP_URL_PATH) ?? $pet->pet_image), '/')))
+                        : null,
                     'species' => $pet->species,
                     'breed' => $pet->breed,
                     'age' => $pet->age,
                     'gender' => $pet->gender,
                     'color' => $pet->color,
                     'weight' => $pet->weight,
-                    'microchip_id' => $pet->microchip_id,
+                    'microchip_number' => $pet->microchip_number,
                     'medical_notes' => $pet->medical_notes,
-                    'pet_image' => $pet->pet_image,
                     'tag' => $firstTag ? [
                         'id' => $firstTag->id,
                         'tag_code' => $firstTag->tag_code,
@@ -216,7 +230,7 @@ class MobilePetController extends Controller
             ], 200);
             
         } catch (\Exception $e) {
-            \Log::error('Pet show error: ' . $e->getMessage());
+            Log::error('Pet show error: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -250,13 +264,13 @@ class MobilePetController extends Controller
             'breed' => 'nullable|string|max:255',
             'age' => 'nullable|integer|min:0',
             'gender' => 'nullable|in:male,female',
+            'status' => 'nullable|in:alive,deceased',
             'color' => 'nullable|string|max:255',
             'weight' => 'nullable|numeric|min:0',
-            'microchip_id' => 'nullable|string|max:255',
             'microchip_number' => 'nullable|string|max:255',
             'medical_notes' => 'nullable|string|max:1000',
-            'pet_image' => 'nullable|image|max:5120',
-            'remove_pet_image' => 'nullable|boolean',
+            'pet_image' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'remove_pet_image' => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -268,40 +282,39 @@ class MobilePetController extends Controller
         }
 
         try {
-            $updates = $request->only([
-                'name', 'species', 'breed', 'age', 'gender', 'color', 'weight', 'medical_notes'
+            $updateData = $request->only([
+                'name',
+                'species',
+                'breed',
+                'age',
+                'gender',
+                'status',
+                'color',
+                'weight',
+                'microchip_number',
+                'medical_notes',
             ]);
-            $microchip = $request->input('microchip_number', $request->input('microchip_id'));
-            if (!is_null($microchip)) {
-                $updates['microchip_id'] = $microchip;
-            }
-            $pet->update($updates);
 
-            // Remove existing image if requested
             if ($request->boolean('remove_pet_image')) {
-                if (!empty($pet->pet_image)) {
-                    $rel = ltrim(str_replace('/storage/', '', $pet->pet_image), '/');
-                    if ($rel) {
-                        try { Storage::disk('public')->delete($rel); } catch (\Throwable $t) {}
-                    }
+                $existing = $pet->pet_image;
+                if ($existing) {
+                    $existingPath = ltrim(str_replace('/storage/', '', parse_url($existing, PHP_URL_PATH) ?? $existing), '/');
+                    Storage::disk('public')->delete($existingPath);
                 }
-                $pet->pet_image = null;
-                $pet->save();
+                $updateData['pet_image'] = null;
             }
 
-            // Handle new image upload
             if ($request->hasFile('pet_image')) {
-                if (!empty($pet->pet_image)) {
-                    $rel = ltrim(str_replace('/storage/', '', $pet->pet_image), '/');
-                    if ($rel) {
-                        try { Storage::disk('public')->delete($rel); } catch (\Throwable $t) {}
-                    }
+                $existing = $pet->pet_image;
+                if ($existing) {
+                    $existingPath = ltrim(str_replace('/storage/', '', parse_url($existing, PHP_URL_PATH) ?? $existing), '/');
+                    Storage::disk('public')->delete($existingPath);
                 }
-                $path = $request->file('pet_image')->store('pet_images', 'public');
-                $publicPath = '/storage/' . ltrim($path, '/');
-                $pet->pet_image = $publicPath;
-                $pet->save();
+                $imagePath = $request->file('pet_image')->store('pet_images', 'public');
+                $updateData['pet_image'] = $imagePath; // store path only
             }
+
+            $pet->update($updateData);
 
             return response()->json([
                 'success' => true,
@@ -313,11 +326,16 @@ class MobilePetController extends Controller
                     'breed' => $pet->breed,
                     'age' => $pet->age,
                     'gender' => $pet->gender,
+                    'status' => $pet->status,
                     'color' => $pet->color,
                     'weight' => $pet->weight,
-                    'microchip_id' => $pet->microchip_id,
+                    'microchip_number' => $pet->microchip_number,
                     'medical_notes' => $pet->medical_notes,
-                    'pet_image' => $pet->pet_image,
+                    'pet_image' => $pet->pet_image
+                        ? (str_starts_with($pet->pet_image, 'http') || str_starts_with($pet->pet_image, '/storage/')
+                            ? $pet->pet_image
+                            : Storage::url(ltrim(str_replace('/storage/', '', parse_url($pet->pet_image, PHP_URL_PATH) ?? $pet->pet_image), '/')))
+                        : null,
                 ]
             ], 200);
 
@@ -349,6 +367,11 @@ class MobilePetController extends Controller
         }
 
         try {
+            if ($pet->pet_image) {
+                $existingPath = ltrim(str_replace('/storage/', '', parse_url($pet->pet_image, PHP_URL_PATH) ?? $pet->pet_image), '/');
+                Storage::disk('public')->delete($existingPath);
+            }
+
             $pet->delete();
 
             return response()->json([
@@ -455,7 +478,7 @@ class MobilePetController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            \Log::error('Tag assignment error: ' . $e->getMessage());
+            Log::error('Tag assignment error: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -593,7 +616,7 @@ class MobilePetController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            \Log::error('Tag release error: ' . $e->getMessage());
+            Log::error('Tag release error: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -643,6 +666,8 @@ class MobilePetController extends Controller
                         'diagnosis' => $treatment->diagnosis,
                         'disease' => $treatment->disease,
                         'medicine_prescribed' => $treatment->medicine_prescribed,
+                        'weight' => $treatment->weight,
+                        'temperature' => $treatment->temperature,
                         'notes' => $treatment->notes,
                         'collaborator' => $treatment->collaborator ? [
                             'id' => $treatment->collaborator->id,
@@ -702,6 +727,8 @@ class MobilePetController extends Controller
                 'disease' => $treatment->disease,
                 'medicine_prescribed' => $treatment->medicine_prescribed,
                 'dosage' => $treatment->dosage,
+                'weight' => $treatment->weight,
+                'temperature' => $treatment->temperature,
                 'notes' => $treatment->notes,
                 'collaborator' => $treatment->collaborator ? [
                     'id' => $treatment->collaborator->id,

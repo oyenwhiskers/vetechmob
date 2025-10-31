@@ -242,8 +242,11 @@ class MobileBookingController extends Controller
             }
         }
 
+        $is_appointment = $booking->booking_by !== null;
+
         return [
             'id' => $booking->id,
+            'is_appointment' => $is_appointment,
             'pet' => $pet ? [
                 'id' => $pet->id,
                 'name' => $pet->name,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/profile_provider.dart';
 import '../../../providers/auth_provider.dart';
@@ -11,18 +13,100 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool _uploadingImage = false;
+
+  Future<void> _onChangePhoto() async {
+    final picker = ImagePicker();
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.pop(ctx, 'gallery'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Take a photo'),
+              onTap: () => Navigator.pop(ctx, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Remove current photo'),
+              onTap: () => Navigator.pop(ctx, 'remove'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted || action == null) return;
+
+    if (action == 'remove') {
+      setState(() => _uploadingImage = true);
+      final err = await context.read<ProfileProvider>().removeProfileImage();
+      setState(() => _uploadingImage = false);
+      if (err != null && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(err)));
+      } else if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile photo removed')));
+      }
+      return;
+    }
+
+    final source = action == 'camera'
+        ? ImageSource.camera
+        : ImageSource.gallery;
+    final picked = await picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxWidth: 1600,
+    );
+    if (picked == null) return;
+
+    setState(() => _uploadingImage = true);
+    final bytes = await picked.readAsBytes();
+    final err = await context.read<ProfileProvider>().updateProfileImage(
+      bytes: bytes,
+      fileName: picked.name,
+    );
+    setState(() => _uploadingImage = false);
+    if (err != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+    } else if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profile photo updated')));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<ProfileProvider>().fetch());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => context.read<ProfileProvider>().fetch(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProfileProvider>();
 
-    if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-    if (provider.error != null) return Center(child: Text('Error: ${provider.error}'));
+    if (provider.isLoading)
+      return const Center(child: CircularProgressIndicator());
+    if (provider.error != null)
+      return Center(child: Text('Error: ${provider.error}'));
 
     final user = provider.user;
     final customer = provider.customer;
@@ -32,7 +116,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () async {
             await context.read<AuthProvider>().logout();
             if (!mounted) return;
-            Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/', (route) => false);
           },
           child: const Text('Session expired. Login again'),
         ),
@@ -55,17 +141,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      size: 40,
-                      color: Color(0xFF1E3A8A),
+                  GestureDetector(
+                    onTap: _onChangePhoto,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipOval(
+                            child: provider.customer?.profileImage != null
+                                ? CachedNetworkImage(
+                                    imageUrl: provider.customer!.profileImage!,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(
+                                          Icons.person,
+                                          size: 40,
+                                          color: Color(0xFF1E3A8A),
+                                        ),
+                                  )
+                                : const Icon(
+                                    Icons.person,
+                                    size: 40,
+                                    color: Color(0xFF1E3A8A),
+                                  ),
+                          ),
+                        ),
+                        if (_uploadingImage)
+                          const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -80,17 +204,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 6),
                   Text(
                     user.email,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Contact Information Card
           Card(
             elevation: 0,
@@ -129,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Action Buttons
           Row(
             children: [
@@ -139,7 +260,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   label: 'Edit profile',
                   color: const Color(0xFF1E3A8A),
                   onPressed: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _EditProfileScreen()));
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const _EditProfileScreen(),
+                      ),
+                    );
                     if (!mounted) return;
                     context.read<ProfileProvider>().fetch();
                   },
@@ -151,13 +276,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: Icons.lock_outline,
                   label: 'Change password',
                   color: const Color(0xFF047857),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _ChangePasswordScreen())),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const _ChangePasswordScreen(),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Logout Button
           SizedBox(
             width: double.infinity,
@@ -215,10 +344,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Expanded(
                                 child: OutlinedButton(
-                                  onPressed: () => Navigator.pop(context, false),
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
                                   style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    side: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      width: 1.5,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -240,7 +375,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.orange,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -266,20 +403,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (confirmed == true && mounted) {
                   await context.read<AuthProvider>().logout();
                   if (!mounted) return;
-                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/', (route) => false);
                 }
               },
               icon: const Icon(Icons.logout, size: 18),
               label: const Text(
                 'Logout',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                side: BorderSide(color: Colors.red.withOpacity(0.3), width: 1.5),
+                side: BorderSide(
+                  color: Colors.red.withOpacity(0.3),
+                  width: 1.5,
+                ),
                 foregroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -316,11 +455,7 @@ class _InfoRow extends StatelessWidget {
             color: const Color(0xFF1E3A8A).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: const Color(0xFF1E3A8A),
-          ),
+          child: Icon(icon, size: 18, color: const Color(0xFF1E3A8A)),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -372,9 +507,7 @@ class _ActionButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 14),
         side: BorderSide(color: color.withOpacity(0.3), width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -433,11 +566,11 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     final err = await context.read<ProfileProvider>().update(
-          name: _name.text.trim(),
-          email: _email.text.trim(),
-          phone: _phone.text.trim(),
-          address: _address.text.trim(),
-        );
+      name: _name.text.trim(),
+      email: _email.text.trim(),
+      phone: _phone.text.trim(),
+      address: _address.text.trim(),
+    );
     setState(() => _saving = false);
     if (err == null && mounted) {
       Navigator.of(context).pop();
@@ -492,7 +625,8 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Required' : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -504,7 +638,8 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Required' : null,
                       ),
                     ],
                   ),
@@ -621,11 +756,16 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
-    final err = await context.read<ProfileProvider>().changePassword(_current.text, _next.text);
+    final err = await context.read<ProfileProvider>().changePassword(
+      _current.text,
+      _next.text,
+    );
     setState(() => _saving = false);
     if (err == null && mounted) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Password updated')));
     } else if (err != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
     }
@@ -678,7 +818,8 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
                           ),
                         ),
                         obscureText: true,
-                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Required' : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -692,7 +833,8 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
                           ),
                         ),
                         obscureText: true,
-                        validator: (v) => v == null || v.length < 8 ? 'Min 8 chars' : null,
+                        validator: (v) =>
+                            v == null || v.length < 8 ? 'Min 8 chars' : null,
                       ),
                     ],
                   ),

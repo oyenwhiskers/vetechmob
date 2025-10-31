@@ -69,4 +69,36 @@ class ProfileProvider extends ChangeNotifier {
       return e.toString();
     }
   }
+
+  Future<String?> updateProfileImage({required List<int> bytes, required String fileName}) async {
+    try {
+      _loading = true;
+      notifyListeners();
+      final (u, c) = await _service.updateProfileImage(imageBytes: bytes as Uint8List, fileName: fileName);
+      _user = u;
+      _customer = c;
+      return null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> removeProfileImage() async {
+    try {
+      _loading = true;
+      notifyListeners();
+      final (u, c) = await _service.updateProfileImage(removeImage: true);
+      _user = u;
+      _customer = c;
+      return null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
 }
