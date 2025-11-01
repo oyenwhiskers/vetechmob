@@ -6,6 +6,7 @@ import '../../providers/ai_diagnose_provider.dart';
 import '../../providers/pet_provider.dart';
 import '../../models/pet.dart';
 import '../../services/ai_service.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AIDiagnoseScreen extends StatefulWidget {
   const AIDiagnoseScreen({super.key});
@@ -369,10 +370,10 @@ class _AIDiagnoseScreenState extends State<AIDiagnoseScreen> {
                 color: const Color(0xFFC1E8F7).withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.psychology_outlined,
-                size: 50,
-                color: Color(0xFF1E3A8A),
+              child: SvgPicture.asset('assets/images/chatbot.svg', 
+                colorFilter: ColorFilter.mode(Color(0xFF1E3A8A), BlendMode.srcIn),
+                width: 14,
+                height: 14,
               ),
             ),
             const SizedBox(height: 24),

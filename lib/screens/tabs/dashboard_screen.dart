@@ -10,6 +10,7 @@ import 'pets/pet_form_screen.dart';
 import 'pets/pet_detail_screen.dart';
 import 'ai_diagnose_screen.dart';
 import '../../models/dashboard.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DashboardScreen extends StatefulWidget {
   final void Function(int)? onSwitchTab;
@@ -102,205 +103,215 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (data == null) return const Center(child: Text('No data'));
 
     return Scaffold(
+      appBar: AppBar(toolbarHeight: 0, scrolledUnderElevation: 0),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(
           context,
         ).push(MaterialPageRoute(builder: (_) => const AIDiagnoseScreen())),
         backgroundColor: const Color(0xFF1E3A8A),
         shape: CircleBorder(),
-        child: const Icon(Icons.psychology_outlined, color: Colors.white),
+        child: SvgPicture.asset('assets/images/chatbot.svg', 
+          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          width: 42,
+          height: 42,
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: provider.fetch,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            // Header
-            _HeaderSection(userName: userName),
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              // Header
+              _HeaderSection(userName: userName),
 
-            // Stats grid
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-              child: GridView.count(
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                childAspectRatio: 1.5,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                shrinkWrap: true,
-                children: [
-                  _StatCard(
-                    title: 'Pets',
-                    value: data.statistics.totalPets.toString(),
-                    icon: Icons.pets,
-                    color: Colors.teal,
-                    onTap: () {
-                      widget.onSwitchTab?.call(1); // Switch to Pets tab
-                    },
-                  ),
-                  _StatCard(
-                    title: 'Bookings',
-                    value: data.statistics.totalBookings.toString(),
-                    icon: Icons.event_note,
-                    color: Colors.indigo,
-                    onTap: () {
-                      widget.onSwitchTab?.call(2); // Switch to Bookings tab
-                    },
-                  ),
-                  _StatCard(
-                    title: 'Upcoming',
-                    value: data.statistics.upcomingBookings.toString(),
-                    icon: Icons.upcoming,
-                    color: Colors.orange,
-                    onTap: () {
-                      widget.onSwitchTab?.call(2); // Switch to Bookings tab
-                    },
-                  ),
-                  _StatCard(
-                    title: 'Treatments',
-                    value: data.statistics.totalTreatments.toString(),
-                    icon: Icons.medical_information,
-                    color: Colors.pink,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-
-            // Next booking
-            if (data.nextBooking != null)
+              // Stats grid
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: _NextBookingCard(
-                  title: data.nextBooking!.serviceType,
-                  subtitle:
-                      '${_fmtDate(data.nextBooking!.bookingDate)} • ${_fmtTime(data.nextBooking!.bookingTime)} • ${data.nextBooking!.pet.name}',
+                child: GridView.count(
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  childAspectRatio: 1.5,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  shrinkWrap: true,
+                  children: [
+                    _StatCard(
+                      title: 'Pets',
+                      value: data.statistics.totalPets.toString(),
+                      icon: Icons.pets,
+                      color: Colors.teal,
+                      onTap: () {
+                        widget.onSwitchTab?.call(1); // Switch to Pets tab
+                      },
+                    ),
+                    _StatCard(
+                      title: 'Bookings',
+                      value: data.statistics.totalBookings.toString(),
+                      icon: Icons.event_note,
+                      color: Colors.indigo,
+                      onTap: () {
+                        widget.onSwitchTab?.call(2); // Switch to Bookings tab
+                      },
+                    ),
+                    _StatCard(
+                      title: 'Upcoming',
+                      value: data.statistics.upcomingBookings.toString(),
+                      icon: Icons.upcoming,
+                      color: Colors.orange,
+                      onTap: () {
+                        widget.onSwitchTab?.call(2); // Switch to Bookings tab
+                      },
+                    ),
+                    _StatCard(
+                      title: 'Treatments',
+                      value: data.statistics.totalTreatments.toString(),
+                      icon: Icons.medical_information,
+                      color: Colors.pink,
+                      onTap: () {},
+                    ),
+                  ],
                 ),
               ),
 
-            // Quick actions removed; using floatingActionButton instead
-
-            // Recent bookings - vertical list
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              child: _SectionHeader(
-                title: 'Recent bookings',
-                action: data.recentBookings.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.arrow_forward_rounded),
-                        onPressed: () {
-                          // Switch to Bookings tab (index 2)
-                          widget.onSwitchTab?.call(2);
-                        },
-                        tooltip: 'View all',
-                      )
-                    : null,
-              ),
-            ),
-            if (data.recentBookings.isEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: _EmptyStateCard(
-                  message: 'No recent bookings yet',
-                  icon: Icons.event_available_outlined,
-                  action: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const CreateBookingScreen(),
-                        ),
-                      );
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A),
-                      foregroundColor: Colors.white,
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Create booking'),
+              // Next booking
+              if (data.nextBooking != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  child: _NextBookingCard(
+                    title: data.nextBooking!.serviceType,
+                    subtitle:
+                        '${_fmtDate(data.nextBooking!.bookingDate)} • ${_fmtTime(data.nextBooking!.bookingTime)} • ${data.nextBooking!.pet.name}',
+                    isAppointment: data.nextBooking!.isAppointment,
                   ),
                 ),
-              )
-            else
-              ...data.recentBookings
-                  .take(3)
-                  .map(
-                    (b) => Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-                      child: _BookingCard(
-                        title: b.serviceType,
-                        subtitle:
-                            '${_fmtDate(b.bookingDate)} • ${_fmtTime(b.bookingTime)}',
-                        petName: b.pet.name,
-                        status: b.status,
-                        onTap: () {},
+
+              // Quick actions removed; using floatingActionButton instead
+
+              // Recent bookings - vertical list
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+                child: _SectionHeader(
+                  title: 'Recent bookings',
+                  action: data.recentBookings.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.arrow_forward_rounded),
+                          onPressed: () {
+                            // Switch to Bookings tab (index 2)
+                            widget.onSwitchTab?.call(2);
+                          },
+                          tooltip: 'View all',
+                        )
+                      : null,
+                ),
+              ),
+              if (data.recentBookings.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: _EmptyStateCard(
+                    message: 'No recent bookings yet',
+                    icon: Icons.event_available_outlined,
+                    action: FilledButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CreateBookingScreen(),
+                          ),
+                        );
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E3A8A),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Create booking'),
+                    ),
+                  ),
+                )
+              else
+                ...data.recentBookings
+                    .take(3)
+                    .map(
+                      (b) => Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                        child: _BookingCard(
+                          title: b.serviceType,
+                          subtitle:
+                              '${_fmtDate(b.bookingDate)} • ${_fmtTime(b.bookingTime)}',
+                          petName: b.pet.name,
+                          status: b.status,
+                          isAppointment: b.isAppointment,
+                          onTap: () {},
+                        ),
                       ),
                     ),
-                  ),
 
-            // Pets - vertical list
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              child: _SectionHeader(
-                title: 'Your pets',
-                action: data.pets.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.arrow_forward_rounded),
-                        onPressed: () {
-                          // Switch to Pets tab (index 1)
-                          widget.onSwitchTab?.call(1);
-                        },
-                        tooltip: 'Manage',
-                      )
-                    : null,
-              ),
-            ),
-            if (data.pets.isEmpty)
+              // Pets - vertical list
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _EmptyStateCard(
-                  message: 'No pets yet',
-                  icon: Icons.pets_outlined,
-                  action: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const PetFormScreen(),
-                        ),
-                      );
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A),
-                      foregroundColor: Colors.white,
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add pet'),
-                  ),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+                child: _SectionHeader(
+                  title: 'Your pets',
+                  action: data.pets.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.arrow_forward_rounded),
+                          onPressed: () {
+                            // Switch to Pets tab (index 1)
+                            widget.onSwitchTab?.call(1);
+                          },
+                          tooltip: 'Manage',
+                        )
+                      : null,
                 ),
-              )
-            else
-              ...data.pets
-                  .take(3)
-                  .map(
-                    (p) => Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
-                      child: _PetCardVertical(
-                        name: p.name,
-                        species: p.species,
-                        breed: p.breed,
-                        imageUrl: p.petImageUrl,
-                        hasTag: p.tag != null,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => PetDetailScreen(petId: p.id),
-                            ),
-                          );
-                        },
+              ),
+              if (data.pets.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: _EmptyStateCard(
+                    message: 'No pets yet',
+                    icon: Icons.pets_outlined,
+                    action: FilledButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const PetFormScreen(),
+                          ),
+                        );
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E3A8A),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add pet'),
+                    ),
+                  ),
+                )
+              else
+                ...data.pets
+                    .take(3)
+                    .map(
+                      (p) => Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                        child: _PetCardVertical(
+                          name: p.name,
+                          species: p.species,
+                          breed: p.breed,
+                          imageUrl: p.petImageUrl,
+                          hasTag: p.tag != null,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PetDetailScreen(petId: p.id),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-            const SizedBox(height: 16),
-          ],
+              // Extra space for the floating action button
+              const SizedBox(height: 70),
+            ],
+          ),
         ),
       ),
     );
@@ -491,7 +502,12 @@ class _SectionHeader extends StatelessWidget {
 class _NextBookingCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  const _NextBookingCard({required this.title, required this.subtitle});
+  final bool isAppointment;
+  const _NextBookingCard({
+    required this.title,
+    required this.subtitle,
+    this.isAppointment = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -499,28 +515,83 @@ class _NextBookingCard extends StatelessWidget {
     return Card(
       color: cs.secondaryContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFFC1E8F7),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(Icons.schedule, color: Color(0xFF1E3A8A)),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: cs.onSecondaryContainer,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: cs.onSecondaryContainer.withValues(alpha: .9),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFC1E8F7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.schedule, color: Color(0xFF1E3A8A)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            color: cs.onSecondaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      if (isAppointment) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6366F1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.event_available,
+                                size: 12,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Appointment',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: cs.onSecondaryContainer.withValues(alpha: .9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -532,12 +603,14 @@ class _BookingCard extends StatelessWidget {
   final String subtitle;
   final String petName;
   final String status;
+  final bool isAppointment;
   final VoidCallback onTap;
   const _BookingCard({
     required this.title,
     required this.subtitle,
     required this.petName,
     required this.status,
+    this.isAppointment = false,
     required this.onTap,
   });
 
@@ -591,6 +664,38 @@ class _BookingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Appointment badge at top
+                    if (isAppointment)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6366F1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.event_available,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'Appointment',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Text(
                       title,
                       style: const TextStyle(

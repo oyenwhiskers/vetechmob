@@ -127,6 +127,38 @@ class _BookingsScreenState extends State<BookingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Appointment badge at top
+                if (b.isAppointment)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6366F1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.event_available,
+                          size: 12,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'Appointment',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Text(
                   b.serviceType,
                   style: const TextStyle(
@@ -464,6 +496,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       child: _bookingCard(b),
                     ),
                   ),
+                  // Extra space for the floating action button
+                  const SizedBox(height: 48),
                   // Empty state
                   if (provider.bookings.isEmpty)
                     Padding(

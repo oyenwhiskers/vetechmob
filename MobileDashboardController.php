@@ -79,6 +79,7 @@ class MobileDashboardController extends Controller
                     ],
                     'next_booking' => $nextBooking ? [
                         'id' => $nextBooking->id,
+                        'is_appointment' => $nextBooking->booking_by !== null,
                         'pet' => [
                             'id' => $nextBooking->pet->id,
                             'name' => $nextBooking->pet->name,
@@ -87,10 +88,12 @@ class MobileDashboardController extends Controller
                         'booking_date' => $nextBooking->booking_date,
                         'booking_time' => $nextBooking->booking_time,
                         'service_type' => $nextBooking->service_type,
+                        'status' => $nextBooking->status,
                     ] : null,
                     'recent_bookings' => $recentBookings->map(function ($booking) {
                         return [
                             'id' => $booking->id,
+                            'is_appointment' => $booking->booking_by !== null,
                             'pet' => $booking->pet ? [
                                 'id' => $booking->pet->id,
                                 'name' => $booking->pet->name,

@@ -1867,18 +1867,16 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
           ),
         ),
         const Spacer(),
-        Flexible(
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: accentColor,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            textAlign: TextAlign.end,
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: accentColor,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          textAlign: TextAlign.end,
         ),
       ],
     );
